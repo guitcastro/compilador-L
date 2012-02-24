@@ -1,0 +1,16 @@
+# depslib dependency file v1.0
+1330121843 source:c:\users\guilherme\dropbox\compiladores\compiladores\symbol_table.c
+	"symbol_table.h"
+
+1330121935 c:\users\guilherme\dropbox\compiladores\compiladores\symbol_table.h
+	<stdlib.h>
+	<stdio.h>
+	<string.h>
+	"uthash.h"
+
+1330121685 c:\users\guilherme\dropbox\compiladores\compiladores\uthash.h
+	<string.h>
+	<stddef.h>
+	<stdlib.h>
+	<inttypes.h>
+
