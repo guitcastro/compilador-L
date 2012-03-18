@@ -2,15 +2,45 @@
 1330121843 source:c:\users\guilherme\dropbox\compiladores\compiladores\symbol_table.c
 	"symbol_table.h"
 
+1330121843 ble.h"
+
 1330121935 c:\users\guilherme\dropbox\compiladores\compiladores\symbol_table.h
 	<stdlib.h>
 	<stdio.h>
 	<string.h>
 	"uthash.h"
 
+1330121935 
+
 1330121685 c:\users\guilherme\dropbox\compiladores\compiladores\uthash.h
 	<string.h>
 	<stddef.h>
 	<stdlib.h>
 	<inttypes.h>
+
+1330121685 h>
+
+1332027323 source:/home/guilherme/Dropbox/compiladores/symbol_table.c
+	"symbol_table.h"
+
+1332027330 /home/guilherme/Dropbox/compiladores/symbol_table.h
+	<stdlib.h>
+	<stdio.h>
+	<string.h>
+	"uthash.h"
+
+1330121685 /home/guilherme/Dropbox/compiladores/uthash.h
+	<string.h>
+	<stddef.h>
+	<stdlib.h>
+	<inttypes.h>
+
+1332027560 source:/home/guilherme/Dropbox/compiladores/main.c
+	"lexical_analyzer.h"
+
+1332031025 /home/guilherme/Dropbox/compiladores/lexical_analyzer.h
+	"symbol_table.h"
+
+1332032700 source:/home/guilherme/Dropbox/compiladores/lexical_analyzer.c
+	"lexical_analyzer.h"
 

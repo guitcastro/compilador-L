@@ -1,3 +1,6 @@
+#ifndef SYMBOLTABLE_H
+#define SYMBOLTABLE_H
+
 //c libs
 #include <stdlib.h>
 #include <stdio.h>
@@ -18,12 +21,27 @@ struct Symbol *symbolTable;
 /**
  * Inicia a tabela de simbolos (chama as funções clean e initializeDefaults)
  */
-void init ();
+void initSymbolTable ();
+
+/**
+ * Cria uma token
+ */
+struct Symbol * createSymbol (char * name);
+
+/**
+ * Cria uma token com o nome e o tipo especificados
+ */
+struct Symbol * createConstantSymbol (char * name,char * type);
 
 /**
  * adiciona um simbolo a tabela
  */
-void addSymbol (char * name);
+void addSymbol (struct Symbol * s);
+
+/**
+ * adiciona um simbolo a tabela
+ */
+void addConstantSymbol (char * name,char * type);
 
 /**
  * imprimi a tabela de simbolos
@@ -34,3 +52,16 @@ void printTable ();
  * Quantidade de itens na tabela
  */
 unsigned int tableSize();
+
+/**
+ * Imprimi uma token
+ */
+void printSymbol (struct Symbol *s);
+
+/**
+ * retorna o simbolo encontrado de acordo com o nome especificado, ou null quando não encontrado
+ */
+struct Symbol * findToken (char * name);
+
+
+#endif // SYMBOLTABLE_H
