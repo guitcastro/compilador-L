@@ -35,12 +35,18 @@
 	<stdlib.h>
 	<inttypes.h>
 
-1332027560 source:/home/guilherme/Dropbox/compiladores/main.c
-	"lexical_analyzer.h"
+1333930397 source:/home/guilherme/Dropbox/compiladores/main.c
+	"parse.h"
 
-1332031025 /home/guilherme/Dropbox/compiladores/lexical_analyzer.h
+1333930294 /home/guilherme/Dropbox/compiladores/lexical_analyzer.h
 	"symbol_table.h"
 
-1332032700 source:/home/guilherme/Dropbox/compiladores/lexical_analyzer.c
+1333931242 source:/home/guilherme/Dropbox/compiladores/lexical_analyzer.c
 	"lexical_analyzer.h"
+
+1333931018 /home/guilherme/Dropbox/compiladores/parse.h
+	"lexical_analyzer.h"
+
+1333931037 source:/home/guilherme/Dropbox/compiladores/parse.c
+	"parse.h"
 

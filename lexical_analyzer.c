@@ -3,7 +3,7 @@
 /**
  * Inicializa o analizador lexico
  */
-int initLexicalAnalyzer (char * file_name)
+int initLexicalAnalyzer (const char * file_name)
 {
     //inicializar a tabela de simbolos
     initSymbolTable ();
@@ -15,8 +15,6 @@ int initLexicalAnalyzer (char * file_name)
         return -1;
     }
     lineNumber = 1;
-    parse();
-    fclose(source_code);
     return 0;
 }
 
@@ -55,25 +53,12 @@ char readNextChar ()
 }
 
 /**
- * Faz o parse do arquivo
- */
-void parse ()
-{
-    //enquanto diferente de EOF
-    while (!feof(source_code))
-    {
-        if (initialState() < 0)
-            break;
-    }
-}
-
-/**
  * Estado inicial do automato
  */
-int initialState()
+struct Symbol * initialState()
 {
     memset (buffer,0,256);
-    struct Symbol * token = NULL;
+    struct Symbol *token = NULL;
     char character = readNextChar();
     //caso começar com aspas, ler uma string
     if (character == '"')
@@ -81,9 +66,11 @@ int initialState()
     //caso começar com _ , a-z, A-Z ler o identificador (ou palavra reservada)
     else if (character == '_' || isAlphabetical(character))
         token = readIdentifiers();
-    //caso seja comentário
-    else if (character == '{')
-        return readBracesComment();
+    //caso seja comentário, ignorar o mesmo
+    else if (character == '{'){
+        readBracesComment();
+        return initialState();
+    }
     //caso seja digito decimal ou hexadecimal
     else if (character == '0')
         token =  readDecOrHexa();
@@ -92,7 +79,7 @@ int initialState()
         token = readIdentifiers();
     //se for um delimitar ignorar o mesmo
     else if (character == EOF || isDelimiter(character))
-        return 0;
+        return initialState();
     //operadores com apenas um caractere
     else if (character == ';'|| character == '+'||character == '-'|| character == ',' || character == '*')
         token = findToken(buffer);
@@ -108,7 +95,7 @@ int initialState()
         character  = readNextChar();
         if (character != '='){
             printUndefinedLexical();
-            return -1;
+            return NULL;
         }
         token = findToken(buffer);
     }
@@ -123,16 +110,15 @@ int initialState()
             token = findToken("/");
         }
         //caso seja comentário
-        else
-            return readComment();
+        else{
+            readComment();
+            return initialState();
+        }
     }
-
-    printSymbol(token);
-    //se for algo desconhecido, retorna error
+    //fechar arquivo
     if (token == NULL)
-        return -1;
-    else
-        return 0;
+        fclose(source_code);
+    return token;
 }
 
 /**

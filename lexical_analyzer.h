@@ -28,12 +28,12 @@ unsigned int lineNumber;
 /**
  * Inicializa o analizador Lexico
  */
-int initLexicalAnalyzer ();
+int initLexicalAnalyzer (const char * file_name);
 
 /**
  * Estado inicial do Automato
  */
-int initialState();
+struct Symbol * initialState();
 
 /**
 * Lê o próximo caracterer da linguagem
@@ -76,11 +76,6 @@ struct Symbol * readDecOrHexa ();
 struct Symbol * readHexa ();
 
 void saveLexical(char * type);
-
-/**
- * Faz o parse do arquivo
- */
-void parse();
 
 /**
  * imprimir o error "nn:lexema nao identificado [lex]."
