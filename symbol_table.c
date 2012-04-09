@@ -111,7 +111,7 @@ void printSymbol (struct Symbol *s)
 /**
  * imprimi a tabela de simbolos
  */
-void printTable ()
+void printT able ()
 {
     printf("\n");
     struct Symbol *s;

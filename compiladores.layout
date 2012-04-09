@@ -1,17 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_layout_file>
 	<ActiveTarget name="Debug" />
-	<File name="lexical_analyzer.c" open="0" top="0" tabpos="0">
-		<Cursor position="0" topLine="4" />
+	<File name="lexical_analyzer.c" open="1" top="0" tabpos="1">
+		<Cursor position="3692" topLine="96" />
 	</File>
-	<File name="lexical_analyzer.h" open="1" top="1" tabpos="0">
-		<Cursor position="1592" topLine="56" />
+	<File name="lexical_analyzer.h" open="1" top="0" tabpos="2">
+		<Cursor position="1236" topLine="27" />
 	</File>
-	<File name="main.c" open="0" top="0" tabpos="0">
-		<Cursor position="151" topLine="0" />
+	<File name="main.c" open="1" top="0" tabpos="4">
+		<Cursor position="113" topLine="0" />
 	</File>
-	<File name="symbol_table.c" open="0" top="0" tabpos="0">
-		<Cursor position="2396" topLine="95" />
+	<File name="parse.c" open="1" top="0" tabpos="5">
+		<Cursor position="192" topLine="0" />
+	</File>
+	<File name="parse.h" open="1" top="0" tabpos="3">
+		<Cursor position="259" topLine="0" />
+	</File>
+	<File name="symbol_table.c" open="1" top="1" tabpos="6">
+		<Cursor position="2704" topLine="95" />
 	</File>
 	<File name="symbol_table.h" open="0" top="0" tabpos="2">
 		<Cursor position="561" topLine="12" />
