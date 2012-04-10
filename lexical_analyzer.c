@@ -24,6 +24,9 @@ int initLexicalAnalyzer (const char * file_name)
 char readNextChar ()
 {
     char character = fgetc (source_code);
+    if (feof(source_code))
+        return '\0';
+
     //checa se foi encontradado algum error ao ler o arquivo e caso tenha sido encontrado retornar um caracterer nulo
     if (ferror(source_code))
     {
@@ -76,7 +79,7 @@ struct Symbol * initialState()
         token =  readDecOrHexa();
     //caso contrário
     else if (isNumeric(character))
-        token = readIdentifiers();
+        token = readInteger();
     //se for um delimitar ignorar o mesmo
     else if (character == EOF || isDelimiter(character))
         return initialState();
@@ -135,7 +138,7 @@ struct Symbol * readIdentifiers ()
     if (isReservedWord(buffer))
         s = findToken(buffer);
     else
-        s = createSymbol(buffer);
+        s = createTypedSymbol(buffer,"identifier");
     return s;
 }
 
@@ -165,6 +168,7 @@ struct Symbol * readDecOrHexa ()
         return NULL;
     if (c == 'x')
         return readHexa();
+    rewindPointer();
     return readInteger();
 }
 
@@ -182,7 +186,7 @@ struct Symbol * readInteger ()
     }
     while isNumeric(c);
     rewindPointer();
-    return createConstantSymbol(buffer,"int");
+    return createTypedSymbol(buffer,"int");
 }
 
 /**
@@ -204,7 +208,7 @@ struct Symbol * readHexa ()
             return NULL;
         }
     }
-    return createConstantSymbol(buffer,"int");
+    return createTypedSymbol(buffer,"hexa");
 }
 
 /**
@@ -250,7 +254,7 @@ struct Symbol * readString ()
     while (c != '"');
     //remover a aspa final da string
     buffer[strlen(buffer)-1]= '\0';
-    return createConstantSymbol(buffer,"string");
+    return createTypedSymbol(buffer,"string");
 }
 
 void printError (char * error)

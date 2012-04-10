@@ -50,3 +50,63 @@
 1333931037 source:/home/guilherme/Dropbox/compiladores/parse.c
 	"parse.h"
 
+1333969696 source:e:\guitcastro-compilador-l-d87b193\main.c
+	"parse.h"
+
+1011510636 e:\guitcastro-compilador-l-d87b193\parse.h
+	"lexical_analyzer.h"
+
+1333969696 e:\guitcastro-compilador-l-d87b193\lexical_analyzer.h
+	"symbol_table.h"
+
+1011509060 e:\guitcastro-compilador-l-d87b193\symbol_table.h
+	<stdlib.h>
+	<stdio.h>
+	<string.h>
+	"uthash.h"
+
+1333969696 e:\guitcastro-compilador-l-d87b193\uthash.h
+	<string.h>
+	<stddef.h>
+	<stdlib.h>
+	<inttypes.h>
+
+1011509080 source:e:\guitcastro-compilador-l-d87b193\lexical_analyzer.c
+	"lexical_analyzer.h"
+
+1011509988 source:e:\guitcastro-compilador-l-d87b193\symbol_table.c
+	"symbol_table.h"
+
+1011511926 source:e:\guitcastro-compilador-l-d87b193\parse.c
+	"parse.h"
+
+1334014164 source:f:\guitcastro-compilador-l-d87b193\parse.c
+	"parse.h"
+
+1334011294 f:\guitcastro-compilador-l-d87b193\parse.h
+	"lexical_analyzer.h"
+
+1334009888 f:\guitcastro-compilador-l-d87b193\lexical_analyzer.h
+	"symbol_table.h"
+
+1011509060 f:\guitcastro-compilador-l-d87b193\symbol_table.h
+	<stdlib.h>
+	<stdio.h>
+	<string.h>
+	"uthash.h"
+
+1333969696 f:\guitcastro-compilador-l-d87b193\uthash.h
+	<string.h>
+	<stddef.h>
+	<stdlib.h>
+	<inttypes.h>
+
+1334011376 source:f:\guitcastro-compilador-l-d87b193\symbol_table.c
+	"symbol_table.h"
+
+1334014776 source:f:\guitcastro-compilador-l-d87b193\lexical_analyzer.c
+	"lexical_analyzer.h"
+
+1333969696 source:f:\guitcastro-compilador-l-d87b193\main.c
+	"parse.h"
+

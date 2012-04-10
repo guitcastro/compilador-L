@@ -31,7 +31,7 @@ struct Symbol * createSymbol (char * name);
 /**
  * Cria uma token com o nome e o tipo especificados
  */
-struct Symbol * createConstantSymbol (char * name,char * type);
+struct Symbol * createTypedSymbol (char * name,char * type);
 
 /**
  * adiciona um simbolo a tabela
@@ -63,5 +63,14 @@ void printSymbol (struct Symbol *s);
  */
 struct Symbol * findToken (char * name);
 
+/**
+ * Compara se duas token são iguais
+ */
+int compareToken (struct Symbol *s1,char * tokenName);
+
+/**
+ * Compara se duas token tem o mesmo tipo
+ */
+int compareTokenType (struct Symbol *s1,char * tokenType);
 
 #endif // SYMBOLTABLE_H

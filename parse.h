@@ -11,8 +11,30 @@ struct Symbol * currentToken;
 int initParse (const char * file_name);
 
 /**
- * Inicializa o analizador sintático
+ * Implementação do casa Token
  */
-int readToken (struct Symbol * expected);
+int readToken (char * expected);
+
+/**
+ * Implementação do casa Token, esperando por um tipo em especifico
+ */
+int readTypedToken (char * expectedType);
+
+/**
+ * Imprimir error quando o casa token lê um simbolo inesperado
+ */
+void printUndefinedToken ();
+
+/**
+ * Estado inicial da gramática
+ */
+void stateS();
+
+void stateD();
+void stateC ();
+void stateEXP ();
+void stateEXPS();
+void stateT();
+void stateF();
 
 #endif // PARSE_H_INCLUDED

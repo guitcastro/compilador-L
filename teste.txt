@@ -18,4 +18,3 @@ begin
     naoTerminou=n<MAXITER;
   end
 end
-

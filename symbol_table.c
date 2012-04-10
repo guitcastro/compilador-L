@@ -13,13 +13,13 @@ void addSymbol (struct Symbol * s)
  */
 struct Symbol * createSymbol(char * name)
 {
-    return createConstantSymbol(name,NULL);
+    return createTypedSymbol(name,"reserved token");
 }
 
 /**
  * Cria uma token com o nome e o tipo especificados
  */
-struct Symbol * createConstantSymbol (char * name, char * type)
+struct Symbol * createTypedSymbol (char * name, char * type)
 {
     struct Symbol *s;
     //alocar memória
@@ -50,9 +50,9 @@ void initSymbolTable ()
     addSymbol(createSymbol("begin"));
     addSymbol(createSymbol("end"));
     //operadores
-    addSymbol(createSymbol("and"));
-    addSymbol(createSymbol("or"));
-    addSymbol(createSymbol("not"));
+    addSymbol(createSymbol("AND"));
+    addSymbol(createSymbol("OR"));
+    addSymbol(createSymbol("NOT"));
     addSymbol(createSymbol("=="));
     addSymbol(createSymbol("="));
     addSymbol(createSymbol("<="));
@@ -111,10 +111,24 @@ void printSymbol (struct Symbol *s)
 /**
  * imprimi a tabela de simbolos
  */
-void printT able ()
+void printTable ()
 {
     printf("\n");
     struct Symbol *s;
     for(s=symbolTable; s != NULL; s=s->hh.next)
         printSymbol(s);
+}
+
+/**
+ * Compara se duas token são iguais
+ */
+int compareToken (struct Symbol *s1,char * tokenName){
+    return ( strcmp (s1->name,tokenName) == 0 );
+}
+
+/**
+ * Compara se duas token tem o mesmo tipo
+ */
+int compareTokenType (struct Symbol *s1,char * tokenType){
+    return (strcmp(s1->type,tokenType) == 0);
 }
