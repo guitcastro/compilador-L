@@ -16,11 +16,14 @@ int initParse (const char * file_name)
  */
 int readToken (char * expectedToken)
 {
+    if (error != 0)
+        return -1;
     //se as tokens forem iguais
     if (strcmp(currentToken->name,expectedToken) == 0)
         currentToken = initialState();
     else
     {
+        error = 1;
         printUndefinedToken();
         return -1;
     }
@@ -32,6 +35,8 @@ int readToken (char * expectedToken)
  */
 int readTypedToken (char * expectedType)
 {
+    if (error != 0)
+        return -1;
     //se as tokens forem iguais
     if (strcmp(currentToken->type,expectedType) == 0)
         currentToken = initialState();
@@ -220,7 +225,8 @@ void stateC ()
         readToken("write");
         readToken(",");
         stateEXP();
-        while (compareToken(currentToken,",")){
+        while (compareToken(currentToken,","))
+        {
             readToken(",");
             stateEXP();
         }
@@ -231,7 +237,8 @@ void stateC ()
         readToken("writeln");
         readToken(",");
         stateEXP();
-        while (compareToken(currentToken,",")){
+        while (compareToken(currentToken,","))
+        {
             readToken(",");
             stateEXP();
         }
@@ -294,7 +301,7 @@ void stateEXPS()
 void stateT ()
 {
     stateF();
-    while (compareToken(currentToken,"*") || compareToken(currentToken,"/") || compareToken(currentToken,"AND"))
+    if (compareToken(currentToken,"*") || compareToken(currentToken,"/") || compareToken(currentToken,"AND"))
     {
         if (compareToken(currentToken,"*"))
             readToken("*");
@@ -322,11 +329,14 @@ void stateF()
             readToken("TRUE");
         else if (compareToken(currentToken,"FALSE"))
             readToken("FALSE");
-    }else if (compareToken(currentToken,"NOT")){
+    }
+    else if (compareToken(currentToken,"NOT"))
+    {
         readToken ("NOT");
         stateF();
     }
-    else if (compareToken(currentToken,"(")){
+    else if (compareToken(currentToken,"("))
+    {
         readToken ("(");
         stateEXP();
         readToken (")");

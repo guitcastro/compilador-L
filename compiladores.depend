@@ -110,3 +110,33 @@
 1333969696 source:f:\guitcastro-compilador-l-d87b193\main.c
 	"parse.h"
 
+1337716042 source:c:\temp\downloads\guitcastro-compilador-l-ffa82e8\main.c
+	"parse.h"
+
+1337714534 c:\temp\downloads\guitcastro-compilador-l-ffa82e8\parse.h
+	"lexical_analyzer.h"
+
+1334005004 c:\temp\downloads\guitcastro-compilador-l-ffa82e8\lexical_analyzer.h
+	"symbol_table.h"
+
+1337714553 c:\temp\downloads\guitcastro-compilador-l-ffa82e8\symbol_table.h
+	<stdlib.h>
+	<stdio.h>
+	<string.h>
+	"uthash.h"
+
+1334005004 c:\temp\downloads\guitcastro-compilador-l-ffa82e8\uthash.h
+	<string.h>
+	<stddef.h>
+	<stdlib.h>
+	<inttypes.h>
+
+1337716048 source:c:\temp\downloads\guitcastro-compilador-l-ffa82e8\parse.c
+	"parse.h"
+
+1337714596 source:c:\temp\downloads\guitcastro-compilador-l-ffa82e8\symbol_table.c
+	"symbol_table.h"
+
+1337715472 source:c:\temp\downloads\guitcastro-compilador-l-ffa82e8\lexical_analyzer.c
+	"lexical_analyzer.h"
+

@@ -3,6 +3,8 @@
 
 #include "lexical_analyzer.h"
 
+extern int error;
+
 struct Symbol * currentToken;
 
 /**

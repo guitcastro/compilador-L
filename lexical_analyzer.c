@@ -23,9 +23,10 @@ int initLexicalAnalyzer (const char * file_name)
  */
 char readNextChar ()
 {
-    char character = fgetc (source_code);
     if (feof(source_code))
         return '\0';
+    char character = fgetc (source_code);
+
 
     //checa se foi encontradado algum error ao ler o arquivo e caso tenha sido encontrado retornar um caracterer nulo
     if (ferror(source_code))
@@ -51,6 +52,7 @@ char readNextChar ()
     else
     {
         printError ("caractere invalido.");
+        error = 1;
         return '\0';
     }
 }
@@ -70,7 +72,8 @@ struct Symbol * initialState()
     else if (character == '_' || isAlphabetical(character))
         token = readIdentifiers();
     //caso seja comentário, ignorar o mesmo
-    else if (character == '{'){
+    else if (character == '{')
+    {
         readBracesComment();
         return initialState();
     }
@@ -87,16 +90,19 @@ struct Symbol * initialState()
     else if (character == ';'|| character == '+'||character == '-'|| character == ',' || character == '*')
         token = findToken(buffer);
     //operadores com dois caracteres, sendo o segundo '='
-    else if (character == '='|| character == '<'||character == '>'){
+    else if (character == '='|| character == '<'||character == '>')
+    {
         character  = readNextChar();
         if (character != '=')
             rewindPointer();
         token = findToken(buffer);
     }
     //caso único da '!'
-    else if (character == '!'){
+    else if (character == '!')
+    {
         character  = readNextChar();
-        if (character != '='){
+        if (character != '=')
+        {
             printUndefinedLexical();
             return NULL;
         }
@@ -113,7 +119,8 @@ struct Symbol * initialState()
             token = findToken("/");
         }
         //caso seja comentário
-        else{
+        else
+        {
             readComment();
             return initialState();
         }
@@ -133,6 +140,8 @@ struct Symbol * readIdentifiers ()
     struct Symbol *s;
     while (c == '_' || isAlphabetical(c) || isNumeric(c))
         c = readNextChar();
+    if (c == '\0')
+        return NULL;
     //remover o caracter lido
     rewindPointer();
     if (isReservedWord(buffer))
@@ -166,7 +175,7 @@ struct Symbol * readDecOrHexa ()
     c = readNextChar();
     if (!isValidAndNotEof(c))
         return NULL;
-    if (c == 'x')
+    if (c == 'h')
         return readHexa();
     rewindPointer();
     return readInteger();
@@ -202,7 +211,7 @@ struct Symbol * readHexa ()
         if (!isValidAndNotEof(c))
             return NULL;
         //verfica se é numero ou A-F
-        if (!isNumeric(c) && c > 70 && c < 65)
+        if (!isNumeric(c) && (c > 70 || c < 65))
         {
             printUndefinedLexical();
             return NULL;
@@ -264,6 +273,7 @@ void printError (char * error)
 
 void printUndefinedLexical ()
 {
+    error = 1;
     char stringError [256];
     strcpy (stringError ,"lexema nao identificado [");
     strcat (stringError,buffer);
@@ -286,7 +296,8 @@ int isValidAndNotEof (char c)
  */
 void rewindPointer ()
 {
-    if (buffer[strlen(buffer)-1] == '\n'){
+    if (buffer[strlen(buffer)-1] == '\n')
+    {
         lineNumber--;
     }
     buffer[strlen(buffer)-1]= '\0';

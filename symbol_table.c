@@ -19,13 +19,17 @@ struct Symbol * createSymbol(char * name)
 /**
  * Cria uma token com o nome e o tipo especificados
  */
-struct Symbol * createTypedSymbol (char * name, char * type)
+struct Symbol * createTypedSymbol (char * name, char * clazz, char * type)
 {
     struct Symbol *s;
     //alocar memória
     s = malloc(sizeof(struct Symbol));
     s->byte = tableSize();
     strcpy (s->name,name);
+    if (type != NULL)
+        strcpy (s->type,type);
+    if (type != NULL)
+        strcpy (s->type,type);
     if (type != NULL)
         strcpy (s->type,type);
     return s;
@@ -122,13 +126,19 @@ void printTable ()
 /**
  * Compara se duas token são iguais
  */
-int compareToken (struct Symbol *s1,char * tokenName){
+int compareToken (struct Symbol *s1,char * tokenName)
+{
+    if (error != 0)
+        return -1;
     return ( strcmp (s1->name,tokenName) == 0 );
 }
 
 /**
  * Compara se duas token tem o mesmo tipo
  */
-int compareTokenType (struct Symbol *s1,char * tokenType){
+int compareTokenType (struct Symbol *s1,char * tokenType)
+{
+    if (error != 0)
+        return -1;
     return (strcmp(s1->type,tokenType) == 0);
 }

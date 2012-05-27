@@ -8,9 +8,12 @@
 //third-party libs
 #include "uthash.h"
 
+extern int error;
+
 struct Symbol {
    int byte;//0 - 255
    char type [256];
+   char clazz [256];
    char name [256];
    UT_hash_handle hh;
 };
