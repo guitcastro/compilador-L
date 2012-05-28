@@ -9,17 +9,9 @@ void addSymbol (struct Symbol * s)
 }
 
 /**
- * Cria uma token
- */
-struct Symbol * createSymbol(char * name)
-{
-    return createTypedSymbol(name,"reserved token");
-}
-
-/**
  * Cria uma token com o nome e o tipo especificados
  */
-struct Symbol * createTypedSymbol (char * name, char * clazz, char * type)
+struct Symbol * createSymbol (char * name, char * clazz, char * type)
 {
     struct Symbol *s;
     //alocar memória
@@ -28,10 +20,12 @@ struct Symbol * createTypedSymbol (char * name, char * clazz, char * type)
     strcpy (s->name,name);
     if (type != NULL)
         strcpy (s->type,type);
-    if (type != NULL)
-        strcpy (s->type,type);
-    if (type != NULL)
-        strcpy (s->type,type);
+    else
+        memset (s->type,0,256);
+    if (clazz != NULL)
+        strcpy (s->clazz,clazz);
+    else
+        memset (s->clazz,0,256);
     return s;
 }
 
@@ -43,44 +37,44 @@ void initSymbolTable ()
     //inicializa o hash
     symbolTable = NULL;
     //tipos primitivos
-    addSymbol(createSymbol("boolean"));
-    addSymbol(createSymbol("byte"));
-    addSymbol(createSymbol("int"));
-    addSymbol(createSymbol("string"));
+    addSymbol(createSymbol("boolean","reserverd_word",NULL));
+    addSymbol(createSymbol("byte","reserverd_word",NULL));
+    addSymbol(createSymbol("int","reserverd_word",NULL));
+    addSymbol(createSymbol("string","reserverd_word",NULL));
     //controladores
-    addSymbol(createSymbol("while"));
-    addSymbol(createSymbol("if"));
-    addSymbol(createSymbol("else"));
-    addSymbol(createSymbol("begin"));
-    addSymbol(createSymbol("end"));
+    addSymbol(createSymbol("while","reserverd_word",NULL));
+    addSymbol(createSymbol("if","reserverd_word",NULL));
+    addSymbol(createSymbol("else","reserverd_word",NULL));
+    addSymbol(createSymbol("begin","reserverd_word",NULL));
+    addSymbol(createSymbol("end","reserverd_word",NULL));
     //operadores
-    addSymbol(createSymbol("AND"));
-    addSymbol(createSymbol("OR"));
-    addSymbol(createSymbol("NOT"));
-    addSymbol(createSymbol("=="));
-    addSymbol(createSymbol("="));
-    addSymbol(createSymbol("<="));
-    addSymbol(createSymbol(">="));
-    addSymbol(createSymbol("+"));
-    addSymbol(createSymbol("-"));
-    addSymbol(createSymbol("*"));
-    addSymbol(createSymbol("/"));
-    addSymbol(createSymbol("<"));
-    addSymbol(createSymbol(">"));
-    addSymbol(createSymbol("!="));
+    addSymbol(createSymbol("AND","reserverd_word",NULL));
+    addSymbol(createSymbol("OR","reserverd_word",NULL));
+    addSymbol(createSymbol("NOT","reserverd_word",NULL));
+    addSymbol(createSymbol("==","reserverd_word",NULL));
+    addSymbol(createSymbol("=","reserverd_word",NULL));
+    addSymbol(createSymbol("<=","reserverd_word",NULL));
+    addSymbol(createSymbol(">=","reserverd_word",NULL));
+    addSymbol(createSymbol("+","reserverd_word",NULL));
+    addSymbol(createSymbol("-","reserverd_word",NULL));
+    addSymbol(createSymbol("*","reserverd_word",NULL));
+    addSymbol(createSymbol("/","reserverd_word",NULL));
+    addSymbol(createSymbol("<","reserverd_word",NULL));
+    addSymbol(createSymbol(">","reserverd_word",NULL));
+    addSymbol(createSymbol("!=","reserverd_word",NULL));
     //constantes
-    addSymbol(createSymbol("TRUE"));
-    addSymbol(createSymbol("FALSE"));
+    addSymbol(createSymbol("TRUE","reserverd_word","boolean"));
+    addSymbol(createSymbol("FALSE","reserverd_word","boolean"));
     //funcoes
-    addSymbol(createSymbol("readln"));
-    addSymbol(createSymbol("write"));
-    addSymbol(createSymbol("writeln"));
+    addSymbol(createSymbol("readln","reserverd_word",NULL));
+    addSymbol(createSymbol("write","reserverd_word",NULL));
+    addSymbol(createSymbol("writeln","reserverd_word",NULL));
     //outros
-    addSymbol(createSymbol("final"));
-    addSymbol(createSymbol(","));
-    addSymbol(createSymbol(";"));
-    addSymbol(createSymbol("("));
-    addSymbol(createSymbol(")"));
+    addSymbol(createSymbol("final","reserverd_word",NULL));
+    addSymbol(createSymbol(",","reserverd_word",NULL));
+    addSymbol(createSymbol(";","reserverd_word",NULL));
+    addSymbol(createSymbol("(","reserverd_word",NULL));
+    addSymbol(createSymbol(")","reserverd_word",NULL));
 }
 
 /**
@@ -94,7 +88,7 @@ unsigned int tableSize()
 /**
  * retorna o simbolo encontrado de acordo com o nome especificado, ou null quando não encontrado
  */
-struct Symbol * findToken (char * name)
+struct Symbol * findToken (const char * name)
 {
     struct Symbol *s;
     HASH_FIND_STR (symbolTable, name, s );
@@ -108,8 +102,10 @@ void printSymbol (struct Symbol *s)
 {
     if (s->type == NULL)
         printf("endereco: %d \t nome: %s \n", s->byte, s->name);
-    else
+    else if (s->clazz == NULL)
         printf("endereco: %d \t nome: %s \t tipo: %s \n", s->byte, s->name,s->type);
+    else
+        printf("endereco: %d \t nome: %s \t tipo: %s \t classe: %s \n", s->byte, s->name,s->type,s->clazz);
 }
 
 /**
@@ -141,4 +137,14 @@ int compareTokenType (struct Symbol *s1,char * tokenType)
     if (error != 0)
         return -1;
     return (strcmp(s1->type,tokenType) == 0);
+}
+
+/**
+ * Compara se duas token tem a mesma classe
+ */
+int compareTokenClass (struct Symbol *s1,char * tokenClazz)
+{
+    if (error != 0)
+        return -1;
+    return (strcmp(s1->clazz,tokenClazz) == 0);
 }

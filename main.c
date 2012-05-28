@@ -6,6 +6,6 @@ int main(int argc, const char *argv[])
 {
     //inicializar a tabela de simbolos
     initParse(argv[1]);
-    //printTable();
+    printTable();
     return 0;
 }

@@ -147,7 +147,7 @@ struct Symbol * readIdentifiers ()
     if (isReservedWord(buffer))
         s = findToken(buffer);
     else
-        s = createTypedSymbol(buffer,"identifier");
+        s = createSymbol(buffer,"identifier", NULL);
     return s;
 }
 
@@ -175,7 +175,7 @@ struct Symbol * readDecOrHexa ()
     c = readNextChar();
     if (!isValidAndNotEof(c))
         return NULL;
-    if (c == 'h')
+    if (c == 'x')
         return readHexa();
     rewindPointer();
     return readInteger();
@@ -195,7 +195,7 @@ struct Symbol * readInteger ()
     }
     while isNumeric(c);
     rewindPointer();
-    return createTypedSymbol(buffer,"int");
+    return createSymbol(buffer,"const","integer");
 }
 
 /**
@@ -203,6 +203,7 @@ struct Symbol * readInteger ()
  */
 struct Symbol * readHexa ()
 {
+    memset (buffer,0,256);
     char c;
     int i;
     for (i=0; i<2; i++)
@@ -217,7 +218,10 @@ struct Symbol * readHexa ()
             return NULL;
         }
     }
-    return createTypedSymbol(buffer,"hexa");
+    int num;
+    sscanf (buffer,"%X",&num);
+    itoa(num,buffer,10);
+    return createSymbol(buffer,"const","integer");
 }
 
 /**
@@ -263,7 +267,7 @@ struct Symbol * readString ()
     while (c != '"');
     //remover a aspa final da string
     buffer[strlen(buffer)-1]= '\0';
-    return createTypedSymbol(buffer,"string");
+    return createSymbol(buffer,"const","string");
 }
 
 void printError (char * error)

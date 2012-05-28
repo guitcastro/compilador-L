@@ -2,8 +2,8 @@
 
 int n;
 string nome;
-boolean naoTerminou;
-final MAXITER=10;
+boolean naoTerminou,outrobool,maisBool;
+final MAXITER=-10;
 
 { Bloco Principal }
 

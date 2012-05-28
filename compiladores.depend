@@ -2,7 +2,7 @@
 1330121843 source:c:\users\guilherme\dropbox\compiladores\compiladores\symbol_table.c
 	"symbol_table.h"
 
-1330121843 ble.h"
+1338153837 ble.h"
 
 1330121935 c:\users\guilherme\dropbox\compiladores\compiladores\symbol_table.h
 	<stdlib.h>
@@ -10,7 +10,7 @@
 	<string.h>
 	"uthash.h"
 
-1330121935 
+1338157913 
 
 1330121685 c:\users\guilherme\dropbox\compiladores\compiladores\uthash.h
 	<string.h>
@@ -18,7 +18,7 @@
 	<stdlib.h>
 	<inttypes.h>
 
-1330121685 h>
+1338142507 h>
 
 1332027323 source:/home/guilherme/Dropbox/compiladores/symbol_table.c
 	"symbol_table.h"
@@ -43,6 +43,8 @@
 
 1333931242 source:/home/guilherme/Dropbox/compiladores/lexical_analyzer.c
 	"lexical_analyzer.h"
+
+1338153671 nalyzer.h"
 
 1333931018 /home/guilherme/Dropbox/compiladores/parse.h
 	"lexical_analyzer.h"
@@ -139,4 +141,64 @@
 
 1337715472 source:c:\temp\downloads\guitcastro-compilador-l-ffa82e8\lexical_analyzer.c
 	"lexical_analyzer.h"
+
+1338157990 source:c:\users\guilherme\dropbox\compiladores\main.c
+	"parse.h"
+
+1338156041 c:\users\guilherme\dropbox\compiladores\parse.h
+	"lexical_analyzer.h"
+
+1338144569 c:\users\guilherme\dropbox\compiladores\lexical_analyzer.h
+	"symbol_table.h"
+
+1338151359 c:\users\guilherme\dropbox\compiladores\symbol_table.h
+	<stdlib.h>
+	<stdio.h>
+	<string.h>
+	"uthash.h"
+
+1338142507 c:\users\guilherme\dropbox\compiladores\uthash.h
+	<string.h>
+	<stddef.h>
+	<stdlib.h>
+	<inttypes.h>
+
+1338157913 source:c:\users\guilherme\dropbox\compiladores\parse.c
+	"parse.h"
+
+1338153671 source:c:\users\guilherme\dropbox\compiladores\lexical_analyzer.c
+	"lexical_analyzer.h"
+
+1338153837 source:c:\users\guilherme\dropbox\compiladores\symbol_table.c
+	"symbol_table.h"
+
+1338164555 source:/home/guilherme/Dropbox/compiladores/lexical_analyzer.c
+	"lexical_analyzer.h"
+
+1334009888 /home/guilherme/Dropbox/compiladores/lexical_analyzer.h
+	"symbol_table.h"
+
+1338164382 /home/guilherme/Dropbox/compiladores/symbol_table.h
+	<stdlib.h>
+	<stdio.h>
+	<string.h>
+	"uthash.h"
+
+1333969696 /home/guilherme/Dropbox/compiladores/uthash.h
+	<string.h>
+	<stddef.h>
+	<stdlib.h>
+	<inttypes.h>
+
+1338157990 source:/home/guilherme/Dropbox/compiladores/main.c
+	"parse.h"
+
+1338163890 /home/guilherme/Dropbox/compiladores/parse.h
+	"lexical_analyzer.h"
+
+1338166252 source:/home/guilherme/Dropbox/compiladores/symbol_table.c
+	"symbol_table.h"
+
+1338166324 source:/home/guilherme/Dropbox/compiladores/parse.c
+	"parse.h"
 
