@@ -3,6 +3,7 @@
 int n;
 string nome;
 boolean naoTerminou,outrobool,maisBool;
+readln,maisBool;
 final MAXITER=-10;
 
 { Bloco Principal }

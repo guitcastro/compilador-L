@@ -113,7 +113,8 @@ int readIdentifier (int stateExpected)
     return 0;
 }
 
-void printIncompatibleType (){
+void printIncompatibleType ()
+{
     char stringError [256];
     strcpy (stringError ,"classe de identificador incompatível [");
     strcat (stringError,currentToken->name);
@@ -170,14 +171,23 @@ void stateS()
         }
         else if (compareToken(currentToken,"begin"))
         {
-            readToken("begin");
-            while (compareTokenClass(currentToken,"identifier") || compareToken(currentToken,"while") ||  compareToken(currentToken,"if") || compareToken(currentToken,"readln") || compareToken(currentToken,"write")|| compareToken(currentToken,"writeln"))
-            {
-                stateC();
-            }
-            readToken("end");
+            stateB();
+        }
+        while (compareTokenClass(currentToken,"identifier") || compareToken(currentToken,"while") ||  compareToken(currentToken,"if") || compareToken(currentToken,"readln") || compareToken(currentToken,"write")|| compareToken(currentToken,"writeln"))
+        {
+            stateC();
         }
     }
+}
+
+void stateB()
+{
+    readToken("begin");
+    while (compareTokenClass(currentToken,"identifier") || compareToken(currentToken,"while") ||  compareToken(currentToken,"if") || compareToken(currentToken,"readln") || compareToken(currentToken,"write")|| compareToken(currentToken,"writeln"))
+    {
+        stateC();
+    }
+    readToken("end");
 }
 
 void stateD ()
@@ -278,69 +288,55 @@ const char *  readConst ()
     return  bla;
 }
 
-void stateC ()
+char * stateC ()
 {
     if (compareTokenClass(currentToken,"identifier"))
     {
         //certifica-se que o identificador já foi declarado
+        struct Symbol * s = findToken(currentToken->name);
         readIdentifier(1);
         readToken("=");
-        stateEXP();
+        char * typeEXP = stateEXP();
+        if(strcmp(s->type, typeEXP) != 0 && strcmp(typeEXP,"byte") != 0)
+        {
+            printError("tipos incompatíveis.");
+            return NULL;
+        }
+        else if(strcmp(typeEXP,"byte") == 0)
+        {
+            if(!checkIntegerOrByte(s->type))
+                return NULL;
+        }
         readToken(";");
     }
     else if (compareToken(currentToken,"while"))
     {
         readToken("while");
-        stateEXP();
+        char * typeEXP = stateEXP();
+        if(!checkBoolean(typeEXP))
+            return NULL;
         if (compareToken(currentToken,"begin"))
-        {
-            readToken("begin");
-            while (compareTokenClass(currentToken,"identifier") || compareToken(currentToken,"while") ||  compareToken(currentToken,"if") || compareToken(currentToken,"readln") || compareToken(currentToken,"write")|| compareToken(currentToken,"writeln"))
-            {
-                stateC();
-            }
-            readToken("end");
-        }
+            stateB();
         else
-        {
             stateC();
-        }
     }
     else if (compareToken(currentToken,"if"))
     {
         readToken("if");
-        stateEXP();
+        char * typeEXP = stateEXP();
+        if(!checkBoolean(typeEXP))
+            return NULL;
         if (compareToken(currentToken,"begin"))
-        {
-            readToken("begin");
-            while (compareTokenType(currentToken,"identifier") || compareToken(currentToken,"while") ||  compareToken(currentToken,"if") || compareToken(currentToken,"readln") || compareToken(currentToken,"write")|| compareToken(currentToken,"writeln"))
-            {
-                stateC();
-            }
-            readToken("end");
-        }
+            stateB();
         else
-        {
             stateC();
-        }
         if (compareToken(currentToken,"else"))
         {
             readToken("else");
-            stateEXP();
             if (compareToken(currentToken,"begin"))
-            {
-                readToken("begin");
-                while (compareTokenClass(currentToken,"identifier") || compareToken(currentToken,"while") ||  compareToken(currentToken,"if") || compareToken(currentToken,"readln") || compareToken(currentToken,"write")|| compareToken(currentToken,"writeln"))
-                {
-                    stateC();
-                }
-                readToken("end");
-            }
+                stateB();
             else
-            {
                 stateC();
-            }
-
         }
     }
     else if (compareToken(currentToken,";"))
@@ -351,126 +347,326 @@ void stateC ()
     {
         readToken("readln");
         readToken(",");
+        struct Symbol *s  = findToken(currentToken->name);
         readIdentifier(1);
-        readToken(";");
-    }
-    else if (compareToken(currentToken,"write"))
-    {
-        readToken("write");
-        readToken(",");
-        stateEXP();
-        while (compareToken(currentToken,","))
+        if (strcmp (s->type,"boolean") == 0)
         {
-            readToken(",");
-            stateEXP();
+            printError("tipos incompatíveis.");
+            return NULL;
         }
         readToken(";");
     }
-    else if (compareToken(currentToken,"writeln"))
+    else if (compareToken(currentToken,"write") || compareToken(currentToken,"writeln"))
     {
-        readToken("writeln");
+        if(compareToken(currentToken, "write"))
+            readToken("write");
+        else if(compareToken(currentToken, "writeln"))
+            readToken("writeln");
         readToken(",");
-        stateEXP();
+        char * typeEXP = stateEXP();
+        if(!checkString(typeEXP))
+            return NULL;
         while (compareToken(currentToken,","))
         {
             readToken(",");
-            stateEXP();
+            typeEXP = stateEXP();
+            if(!checkString(typeEXP))
+                return NULL;
+
         }
         readToken(";");
     }
 }
 
-void stateEXP()
+char * stateEXP()
 {
-    stateEXPS();
+    char * type = stateEXPS();
     if (compareToken(currentToken,"=="))
     {
         readToken("==");
-        stateEXPS();
+        char * typeEXPS = stateEXPS();
+        if(strcmp(type, "boolean"))
+        {
+            if (!checkBoolean(typeEXPS));
+            return NULL;
+        }
+        else if(strcmp(type, "string"))
+        {
+            if(!checkString(typeEXPS))
+                return NULL;
+        }
+        else if(!checkIntegerOrByte(typeEXPS))
+            return NULL;
+
+        return "boolean";
+
     }
-    else if (compareToken(currentToken,"!="))
+    else if (compareToken(currentToken,"!=") || compareToken(currentToken,"<") || compareToken(currentToken,">") || compareToken(currentToken,"<=") || compareToken(currentToken,">=") )
     {
-        readToken("!=");
-        stateEXPS();
+        if (compareToken(currentToken,"!="))
+            readToken("!=");
+        else if (compareToken(currentToken,"<"))
+            readToken("<");
+        else if (compareToken(currentToken,">"))
+            readToken(">");
+        else if (compareToken(currentToken,"<="))
+            readToken("<=");
+        else if (compareToken(currentToken,">="))
+            readToken(">=");
+        char * typeEXPS = stateEXPS();
+        if(strcmp(type, "boolean") == 0)
+        {
+            if (!checkBoolean(typeEXPS));
+            return NULL;
+        }
+        else if(strcmp(type, "string") == 0)
+        {
+            printError("tipos incompatíveis.");
+            return NULL;
+        }
+        else if(!checkIntegerOrByte(typeEXPS))
+            return NULL;
+
+        return "boolean";
     }
-    else if (compareToken(currentToken,"<"))
-    {
-        readToken("<");
-        stateEXPS();
-    }
-    else if (compareToken(currentToken,">"))
-    {
-        readToken(">");
-        stateEXPS();
-    }
-    else if (compareToken(currentToken,"<="))
-    {
-        readToken("<=");
-        stateEXPS();
-    }
-    else if (compareToken(currentToken,">="))
-    {
-        readToken(">=");
-        stateEXPS();
-    }
+    return type;
 }
 
-void stateEXPS()
+char * stateEXPS()
 {
+    char * type;
     if (compareToken(currentToken,"-"))
+    {
         readToken("-");
-    stateT();
+        type = stateT();
+        if (!checkIntegerOrByte(type))
+            return NULL;
+        //Um valor negado (-) se transforma em inteiro.
+        type = "integer";
+    }
+    else
+    {
+        type = stateT();
+    }
     while (compareToken(currentToken,"-") || compareToken(currentToken,"+") || compareToken(currentToken,"OR"))
     {
         if (compareToken(currentToken,"-"))
+        {
             readToken("-");
+            char * typeF1 = stateT();
+            setIntegerOrByte(type,typeF1);
+        }
         else if (compareToken(currentToken,"+"))
+        {
+            if (!checkIntegerOrByteOrString(type))
+                return NULL;
             readToken("+");
+            char * typeF1 = stateT();
+            //se o F for string o F1 também deve ser
+            if (strcmp(type,"string") == 0)
+            {
+                if (strcmp(typeF1,"string"))
+                {
+                    return NULL;
+                    printError("tipos incompatíveis.");
+                    error = -1;
+                }
+            }
+            else
+                type = setIntegerOrByte(type,typeF1);
+        }
         else if (compareToken(currentToken,"OR"))
+        {
             readToken("OR");
-        stateT();
+            char * typeF1 = stateT();
+            if (!checkBooleanExp(type,typeF1))
+                return NULL;
+        }
     }
+    return type;
 }
 
-void stateT ()
+char * stateT ()
 {
-    stateF();
+    char * type = stateF();
     if (compareToken(currentToken,"*") || compareToken(currentToken,"/") || compareToken(currentToken,"AND"))
     {
         if (compareToken(currentToken,"*"))
+        {
             readToken("*");
+            char * typeF1 = stateF();
+            return setIntegerOrByte(type,typeF1);
+        }
         else if (compareToken(currentToken,"/"))
+        {
             readToken("/");
+            char * typeF1 = stateF();
+            return setIntegerOrByte(type,typeF1);
+        }
         else if (compareToken(currentToken,"AND"))
+        {
             readToken("AND");
-        stateF();
+            char * typeF1 = stateF();
+            if (!checkBooleanExp(type,typeF1))
+                return NULL;
+            else
+                return "boolean";
+        }
     }
+    return type;
 }
 
-void stateF()
+char * stateF()
 {
-    if (compareTokenClass(currentToken,"identifier") || compareTokenType(currentToken,"integer") || compareTokenType(currentToken,"string")|| compareTokenType(currentToken,"boolean"))
+    if (compareTokenClass(currentToken,"identifier"))
     {
-        if (compareTokenClass(currentToken,"identifier"))
-            readIdentifier(1);
-        else if (compareTokenType(currentToken,"integer"))
-            readTypedToken("integer");
-        else if (compareTokenType(currentToken,"string"))
-            readTypedToken("string");
-        else if (compareToken(currentToken,"TRUE"))
-            readToken("TRUE");
-        else if (compareToken(currentToken,"FALSE"))
-            readToken("FALSE");
+        struct Symbol * s = findToken(currentToken->name);
+        if (!readIdentifier(1) && s != NULL)
+            return s->type;
+        else
+        {
+            printError("Error inesperado ao ler a token: ");
+            printSymbol(s);
+            error = -1;
+        }
     }
-    else if (compareToken(currentToken,"NOT"))
+    if (compareTokenType(currentToken,"integer"))
+    {
+        readTypedToken("integer");
+        return "integer";
+    }
+    if (compareTokenType(currentToken,"string"))
+    {
+        readTypedToken("string");
+        return "string";
+    }
+    else if (compareToken(currentToken,"TRUE"))
+    {
+        readToken("TRUE");
+        return "boolean";
+    }
+    else if (compareToken(currentToken,"FALSE"))
+    {
+        readToken("FALSE");
+        return "boolean";
+    }
+    if (compareToken(currentToken,"NOT"))
     {
         readToken ("NOT");
-        stateF();
+        return stateF();
     }
-    else if (compareToken(currentToken,"("))
+    if (compareToken(currentToken,"("))
     {
         readToken ("(");
-        stateEXP();
+        char * type = stateEXP();
         readToken (")");
+        return type;
     }
+    printError ("DeadLock no estado F");
+    error = -1;
+    return NULL;
+}
+
+/**
+ * verifica os tipos de uma expressão boolean (em que os dois operandos são boolean)
+ * ex ( a or b), (a && b)
+ * @param typeX tipo a ser verificado
+ * @param typeY tipo a ser verificado
+ * @return 1: sucesso
+ *         0: error
+ */
+int checkBooleanExp (char * typeX,char * typeY)
+{
+    return (checkBoolean(typeX) && checkBoolean(typeY));
+}
+
+/**
+ * verifica se determinado tipo é um boolean
+ * @param type tipo a ser verificado
+ * @return 1: sucesso
+ *         0: error
+ */
+int checkBoolean (char * type)
+{
+    if (strcmp(type,"boolean") != 0)
+    {
+        printError("tipos incompatíveis.");
+        error = -1;
+        return 0;
+    }
+    return 1;
+}
+
+/**
+ * verifica se determinado tipo é um string
+ * @param type tipo a ser verificado
+ * @return 1: sucesso
+ *         0: error
+ */
+int checkString (char * type)
+{
+    if (strcmp(type,"string") != 0)
+    {
+        printError("tipos incompatíveis.");
+        error = -1;
+        return 0;
+    }
+    return 1;
+}
+
+/**
+ * Checa se o tipo é byte ou inteiro ou string
+ * @param type tipo a ser verificado
+ * @return o tipo se ele for string, byte ou inteiro , NULL caso seja diferente
+ */
+char * checkIntegerOrByteOrString (char * type)
+{
+    if (strcmp (type,"string") == 0)
+        return "string";
+    if (strcmp (type,"byte") == 0)
+        return "byte";
+    if (strcmp (type,"integer") == 0)
+        return "integer";
+    printError("tipos incompatíveis.");
+    error = -1;
+    return NULL;
+}
+
+/**
+ * Checa se o tipo é byte ou inteiro
+ * @param type tipo a ser verificado
+ * @return 1: sucesso
+ *         0: error
+ */
+int checkIntegerOrByte (char * type)
+{
+    if (!isIntegerOrByte(type))
+    {
+        printError("tipos incompatíveis.");
+        error = -1;
+        return 0;
+    }
+    return 1;
+}
+
+/**
+ * Determina qual será o tipo resultado da operação entre bytes em inteiros
+ * @param typeX tipo do operando a esquerda
+ * @param typeY tipo do operando a direita
+ * @return O tipo resultante da operação
+ */
+char * setIntegerOrByte (char * typeX,char * typeY)
+{
+    //primeiro verificar se os dois tipos são inteiros ou bytes
+    if (!checkIntegerOrByte(typeX))
+        return 0;
+    if (!checkIntegerOrByte(typeY))
+        return 0;
+    //ou exlcusivo que determina se apenas 1 operador é byte
+    //nesse caso o tipo deve ser tranformado em inteiro
+    else if (hasByte(typeX,typeY))
+        return "integer";
+    //se não os dois tem o mesmo tipo (byte, ou inteiro)
+    else
+        return typeX;
 }

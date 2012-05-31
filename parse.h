@@ -4,6 +4,9 @@
 
 #include "lexical_analyzer.h"
 
+#define isIntegerOrByte(c) (strcmp(c,"integer") == 0 || strcmp (c,"byte") == 0)
+#define hasByte(a,b) ( (strcmp(a,"byte") == 0 || strcmp (b,"byte") == 0) && !(strcmp(a,"byte") == 0 && strcmp (b,"byte") == 0) )
+
 extern int error;
 
 struct Symbol * currentToken;
@@ -60,6 +63,55 @@ void printUndeclaredIdentifier (const struct Symbol * id);
  */
 void printIdentifierAlreadyDeclared (const struct Symbol * id);
 
+/**
+ * verifica os tipos de uma expressão boolean (em que os dois operandos são boolean)
+ * ex ( a or b), (a && b)
+ * @param typeX tipo a ser verificado
+ * @param typeY tipo a ser verificado
+ * @return 1: sucesso
+ *         0: error
+ */
+int checkBooleanExp (char * typeX,char * typeY);
+
+/**
+ * verifica se determinado tipo é um boolean
+ * @param type tipo a ser verificado
+ * @return 1: sucesso
+ *         0: error
+ */
+int  checkBoolean (char * type);
+
+/**
+ * verifica se determinado tipo é um string
+ * @param type tipo a ser verificado
+ * @return 1: sucesso
+ *         0: error
+ */
+int checkString (char * type);
+
+/**
+ * Checa se o tipo é byte ou inteiro ou string
+ * @param type tipo a ser verificado
+ * @return o tipo se ele for string, byte ou inteiro , NULL caso seja diferente
+ */
+char * checkIntegerOrByteOrString (char * type);
+
+/**
+ * Checa se o tipo é byte ou inteiro
+ * @param type tipo a ser verificado
+ * @return 1: sucesso
+ *         0: error
+ */
+int  checkIntegerOrByte (char * type);
+
+/**
+ * Determina qual será o tipo resultado da operação entre bytes em inteiros
+ * @param typeX tipo do operando a esquerda
+ * @param typeY tipo do operando a direita
+ * @return O tipo resultante da operação
+ */
+char * setIntegerOrByte (char * typeX,char * typeY);
+
 
 /**
  * Lê uma constante
@@ -70,12 +122,12 @@ const char * readConst ();
  * Estado inicial da gramática
  */
 void stateS();
-
+void stateB();
 void stateD();
-void stateC ();
-void stateEXP ();
-void stateEXPS();
-void stateT();
-void stateF();
+char * stateC ();
+char * stateEXP ();
+char * stateEXPS();
+char * stateT();
+char * stateF();
 
 #endif // PARSE_H_INCLUDED
