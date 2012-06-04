@@ -11,7 +11,7 @@
 extern int error;
 
 struct Symbol {
-   int byte;//0 - 255
+   unsigned int adress;//0 - 255
    char type [256];
    char clazz [256];
    char name [256];

@@ -1,4 +1,5 @@
 #include "parse.h"
+#include "code_generator.h"
 
 /**
  * Inicializa o analizador sintático
@@ -7,6 +8,7 @@
 int initParse (const char * file_name)
 {
     initLexicalAnalyzer(file_name);
+    initCodeGen(file_name);
     currentToken = initialState();
     stateS();
     return 0;
@@ -163,21 +165,19 @@ void printIdentifierAlreadyDeclared (const struct Symbol * id)
  */
 void stateS()
 {
-    while (currentToken != NULL)
+    while (compareToken(currentToken,"int") || compareToken(currentToken,"boolean") ||  compareToken(currentToken,"byte") || compareToken(currentToken,"string") || compareToken(currentToken,"final"))
     {
-        if (compareToken(currentToken,"int") || compareToken(currentToken,"boolean") ||  compareToken(currentToken,"byte") || compareToken(currentToken,"string") || compareToken(currentToken,"final"))
-        {
-            stateD();
-        }
-        else if (compareToken(currentToken,"begin"))
-        {
-            stateB();
-        }
-        while (compareTokenClass(currentToken,"identifier") || compareToken(currentToken,"while") ||  compareToken(currentToken,"if") || compareToken(currentToken,"readln") || compareToken(currentToken,"write")|| compareToken(currentToken,"writeln"))
-        {
-            stateC();
-        }
+        stateD();
     }
+    closeDseg();
+    openCseg();
+    while (compareToken(currentToken,"begin"))
+    {
+        stateB();
+    }
+    if (currentToken != NULL)
+        printUndefinedLexical();
+
 }
 
 void stateB()
@@ -192,7 +192,7 @@ void stateB()
 
 void stateD ()
 {
-    const char * type;
+    struct Symbol * constant;
     if(compareToken(currentToken,"final"))
     {
         readToken("final");
@@ -200,9 +200,10 @@ void stateD ()
         //verifica se o identificador não foi declarado
         readIdentifier(0);
         readToken("=");
-        type = readConst();
-        strcpy (identifier->type,type);
+        constant = readConst();
+        strcpy (identifier->type,constant->type);
         strcpy (identifier->clazz,"const");
+        defConst(identifier,constant);
     }
     else
     {
@@ -220,7 +221,7 @@ void stateD ()
         else if(compareToken(currentToken,"byte"))
         {
             readToken("byte");
-            typeExpected = "integer";
+            typeExpected = "byte";
         }
         else if(compareToken(currentToken,"string"))
         {
@@ -230,6 +231,7 @@ void stateD ()
         struct Symbol * identifier = &*currentToken;
         strcpy(identifier->type,typeExpected);
         readIdentifier(0);
+        defIdentifier(identifier);
         if (compareToken(currentToken,","))
         {
             while (compareToken(currentToken,","))
@@ -238,13 +240,14 @@ void stateD ()
                 identifier = &*currentToken;
                 strcpy(identifier->type,typeExpected);
                 readIdentifier(0);
+                defIdentifier(identifier);
             }
         }
         else if (compareToken(currentToken,"="))
         {
             readToken("=");
-            type = readConst();
-            if (strcmp(type,typeExpected) != 0)
+            constant = readConst();
+            if (strcmp(constant->type,typeExpected) != 0)
                 printIncompatibleType();
         }
     }
@@ -254,9 +257,9 @@ void stateD ()
 /**
  * Lê uma constante
  */
-const char *  readConst ()
+struct Symbol * readConst ()
 {
-    char type [20];
+    struct Symbol * constant;
     if (compareToken(currentToken,"-"))
     {
         readToken("-");
@@ -264,28 +267,32 @@ const char *  readConst ()
         strcat (temp,currentToken->name);
         strcpy (currentToken->name,temp);
     }
+    constant = &* currentToken;
     if (compareTokenType(currentToken,"integer"))
     {
+        int num = atoi(currentToken->name);
         readTypedToken("integer");
-        strcpy (type,"integer");
+        if (num >= 0 && num <= 255)
+            strcpy (constant->type,"byte");
+        else
+            strcpy (constant->type,"integer");
     }
     else if (compareTokenType(currentToken,"string"))
     {
         readTypedToken("string");
-        strcpy (type,"string");
+        strcpy (constant->type,"string");
     }
     else if (compareToken(currentToken,"TRUE"))
     {
         readToken("TRUE");
-        strcpy (type,"boolean");
+        strcpy (constant->type,"boolean");
     }
     else if (compareToken(currentToken,"FALSE"))
     {
         readToken("FALSE");
-        strcpy (type,"boolean");
+        strcpy (constant->type,"boolean");
     }
-    const char * bla = type;
-    return  bla;
+    return constant;
 }
 
 char * stateC ()
@@ -296,6 +303,11 @@ char * stateC ()
         struct Symbol * s = findToken(currentToken->name);
         readIdentifier(1);
         readToken("=");
+        if (strcmp(s->clazz,"const")==0)
+        {
+            printIncompatibleType();
+            return NULL;
+        }
         char * typeEXP = stateEXP();
         if(strcmp(s->type, typeEXP) != 0 && strcmp(typeEXP,"byte") != 0)
         {
@@ -313,8 +325,10 @@ char * stateC ()
     {
         readToken("while");
         char * typeEXP = stateEXP();
-        if(!checkBoolean(typeEXP))
+        if(!checkBoolean(typeEXP)){
+            printIncompatibleType();
             return NULL;
+        }
         if (compareToken(currentToken,"begin"))
             stateB();
         else
@@ -376,26 +390,28 @@ char * stateC ()
         }
         readToken(";");
     }
+    return NULL;
 }
 
 char * stateEXP()
 {
-    char * type = stateEXPS();
+    struct Symbol EXPS1 = stateEXPS();
+    struct Symbol EXPS2;
     if (compareToken(currentToken,"=="))
     {
         readToken("==");
-        char * typeEXPS = stateEXPS();
-        if(strcmp(type, "boolean"))
+        EXPS2 = stateEXPS();
+        if(strcmp(EXPS1.type, "boolean"))
         {
-            if (!checkBoolean(typeEXPS));
+            if (!checkBoolean(EXPS2.type));
             return NULL;
         }
-        else if(strcmp(type, "string"))
+        else if(strcmp(EXPS1.type, "string"))
         {
-            if(!checkString(typeEXPS))
+            if(!checkString(EXPS2.type))
                 return NULL;
         }
-        else if(!checkIntegerOrByte(typeEXPS))
+        else if(!checkIntegerOrByte(EXPS2.type))
             return NULL;
 
         return "boolean";
@@ -413,158 +429,180 @@ char * stateEXP()
             readToken("<=");
         else if (compareToken(currentToken,">="))
             readToken(">=");
-        char * typeEXPS = stateEXPS();
-        if(strcmp(type, "boolean") == 0)
+        EXPS2 = stateEXPS();
+        if(strcmp(EXPS1.type, "boolean") == 0)
         {
-            if (!checkBoolean(typeEXPS));
+            if (!checkBoolean(EXPS2.type));
             return NULL;
         }
-        else if(strcmp(type, "string") == 0)
+        else if(strcmp(EXPS1.type, "string") == 0)
         {
             printError("tipos incompatíveis.");
             return NULL;
         }
-        else if(!checkIntegerOrByte(typeEXPS))
+        else if(!checkIntegerOrByte(EXPS2.type))
             return NULL;
 
         return "boolean";
     }
-    return type;
+    char * x = EXPS1.type;
+    return x;
 }
 
-char * stateEXPS()
+struct Symbol stateEXPS()
 {
-    char * type;
+
+    struct Symbol T1;
+    struct Symbol T2;
+    struct Symbol EXPS;
     if (compareToken(currentToken,"-"))
     {
         readToken("-");
-        type = stateT();
-        if (!checkIntegerOrByte(type))
-            return NULL;
+        T1 = stateT();
+        if (!checkIntegerOrByte(T1.type)){
+            strcpy(T1.type,"error");
+            return T1;
+        }
+        strcpy(T1.type,"integer");
         //Um valor negado (-) se transforma em inteiro.
-        type = "integer";
     }
     else
     {
-        type = stateT();
+        EXPS = T1 = stateT();
     }
     while (compareToken(currentToken,"-") || compareToken(currentToken,"+") || compareToken(currentToken,"OR"))
     {
         if (compareToken(currentToken,"-"))
         {
             readToken("-");
-            char * typeF1 = stateT();
-            setIntegerOrByte(type,typeF1);
+            T2 = stateT();
+            strcpy(EXPS.type,setIntegerOrByte(T1.type,T2.type));
         }
         else if (compareToken(currentToken,"+"))
         {
-            if (!checkIntegerOrByteOrString(type))
-                return NULL;
+            if (!checkIntegerOrByteOrString(T1.type)){
+                 error = -1;
+                 T1.adress = -1;
+                 return T1;
+            }
             readToken("+");
-            char * typeF1 = stateT();
+            T2 = stateT();
             //se o F for string o F1 também deve ser
-            if (strcmp(type,"string") == 0)
+            if (strcmp(T1.type,"string") == 0)
             {
-                if (strcmp(typeF1,"string"))
+                if (strcmp(T2.type,"string"))
                 {
-                    return NULL;
                     printError("tipos incompatíveis.");
+                    T1.adress = -1;
                     error = -1;
+                    return T1;
                 }
             }
             else
-                type = setIntegerOrByte(type,typeF1);
+                strcpy(EXPS.type,setIntegerOrByte(T1.type,T2.type));
         }
         else if (compareToken(currentToken,"OR"))
         {
             readToken("OR");
-            char * typeF1 = stateT();
-            if (!checkBooleanExp(type,typeF1))
-                return NULL;
+            T2 = stateT();
+            if (!checkBooleanExp(T1.type,T2.type)){
+                EXPS.adress =-1;
+            }
         }
     }
-    return type;
+    return EXPS;
 }
 
-char * stateT ()
+struct Symbol stateT ()
 {
-    char * type = stateF();
-    if (compareToken(currentToken,"*") || compareToken(currentToken,"/") || compareToken(currentToken,"AND"))
+    struct Symbol T = stateF();
+    struct Symbol F1;
+    struct Symbol F2;
+
+    if (compareToken(currentToken,"*"))
     {
-        if (compareToken(currentToken,"*"))
-        {
-            readToken("*");
-            char * typeF1 = stateF();
-            return setIntegerOrByte(type,typeF1);
+        readToken("*");
+        F2 = stateF();
+        if (T.type != NULL)
+            strcpy(T.type,setIntegerOrByte(F1.type,F2.type));
+        else{
+            T.adress = -1;
+            return T;
         }
-        else if (compareToken(currentToken,"/"))
-        {
-            readToken("/");
-            char * typeF1 = stateF();
-            return setIntegerOrByte(type,typeF1);
-        }
-        else if (compareToken(currentToken,"AND"))
-        {
-            readToken("AND");
-            char * typeF1 = stateF();
-            if (!checkBooleanExp(type,typeF1))
-                return NULL;
-            else
-                return "boolean";
-        }
+        int isInteger = (strcmp(T.type,"integer") == 0) ? 1 : 0;
+        T.adress = genMultiply(&F1,&F2,isInteger);
     }
-    return type;
+    else if (compareToken(currentToken,"/"))
+    {
+        readToken("/");
+        F2 = stateF();
+        setIntegerOrByte(F1.type,F2.type);
+        strcpy(T.type,"integer");
+    }
+    else if (compareToken(currentToken,"AND"))
+    {
+        readToken("AND");
+        F2 = stateF();
+        if (!checkBooleanExp(F1.type,F2.type))
+        {
+            T.adress = -1;
+            return T;
+        }
+        else
+            return T;
+    }
+    return T;
 }
 
-char * stateF()
+struct Symbol stateF()
 {
+    struct Symbol F = * currentToken;
     if (compareTokenClass(currentToken,"identifier"))
     {
         struct Symbol * s = findToken(currentToken->name);
-        if (!readIdentifier(1) && s != NULL)
-            return s->type;
-        else
-        {
-            printError("Error inesperado ao ler a token: ");
-            printSymbol(s);
-            error = -1;
-        }
+        readIdentifier(1);
+        strcpy(F.type,s->type);
     }
-    if (compareTokenType(currentToken,"integer"))
+    else if (compareTokenType(currentToken,"integer"))
     {
+        int num = atoi(currentToken->name);
         readTypedToken("integer");
-        return "integer";
+        (num >= 0 && num <= 255) ? strcpy (F.type,"byte") : strcpy (F.type,"integer");
+        defTempConst(&F);
     }
-    if (compareTokenType(currentToken,"string"))
+    else if (compareTokenType(currentToken,"string"))
     {
         readTypedToken("string");
-        return "string";
+        strcpy(F.type,"string");
+        defTempConst(&F);
     }
     else if (compareToken(currentToken,"TRUE"))
     {
         readToken("TRUE");
-        return "boolean";
+        strcpy(F.type,"boolean");
+        defTempConst(&F);
     }
     else if (compareToken(currentToken,"FALSE"))
     {
         readToken("FALSE");
-        return "boolean";
+        strcpy(F.type,"boolean");
+        defTempConst(&F);
     }
-    if (compareToken(currentToken,"NOT"))
+    else if (compareToken(currentToken,"NOT"))
     {
         readToken ("NOT");
-        return stateF();
+        F = stateF();
+        if (!checkBoolean(F.type))
+            F.adress = -1;
     }
-    if (compareToken(currentToken,"("))
+    else if (compareToken(currentToken,"("))
     {
         readToken ("(");
         char * type = stateEXP();
+        strcpy(F.type,type);
         readToken (")");
-        return type;
     }
-    printError ("DeadLock no estado F");
-    error = -1;
-    return NULL;
+    return F;
 }
 
 /**

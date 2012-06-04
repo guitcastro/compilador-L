@@ -32,6 +32,10 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="code_generator.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="code_generator.h" />
 		<Unit filename="lexical_analyzer.c">
 			<Option compilerVar="CC" />
 		</Unit>

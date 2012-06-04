@@ -159,13 +159,13 @@
 1338157990 source:c:\users\guilherme\dropbox\compiladores\main.c
 	"parse.h"
 
-1338421408 c:\users\guilherme\dropbox\compiladores\parse.h
+1338778573 c:\users\guilherme\dropbox\compiladores\parse.h
 	"lexical_analyzer.h"
 
 1338144569 c:\users\guilherme\dropbox\compiladores\lexical_analyzer.h
 	"symbol_table.h"
 
-1338151359 c:\users\guilherme\dropbox\compiladores\symbol_table.h
+1338758332 c:\users\guilherme\dropbox\compiladores\symbol_table.h
 	<stdlib.h>
 	<stdio.h>
 	<string.h>
@@ -177,12 +177,21 @@
 	<stdlib.h>
 	<inttypes.h>
 
-1338423678 source:c:\users\guilherme\dropbox\compiladores\parse.c
+1338779163 source:c:\users\guilherme\dropbox\compiladores\parse.c
 	"parse.h"
+	"code_generator.h"
 
 1338153671 source:c:\users\guilherme\dropbox\compiladores\lexical_analyzer.c
 	"lexical_analyzer.h"
 
-1338166252 source:c:\users\guilherme\dropbox\compiladores\symbol_table.c
+1338770498 source:c:\users\guilherme\dropbox\compiladores\symbol_table.c
 	"symbol_table.h"
+
+1338771328 c:\users\guilherme\dropbox\compiladores\code_generator.h
+	<stdio.h>
+	<string.h>
+	"symbol_table.h"
+
+1338772247 source:c:\users\guilherme\dropbox\compiladores\code_generator.c
+	"code_generator.h"
 

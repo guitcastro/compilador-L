@@ -116,7 +116,7 @@ char * setIntegerOrByte (char * typeX,char * typeY);
 /**
  * Lê uma constante
  */
-const char * readConst ();
+struct Symbol * readConst ();
 
 /**
  * Estado inicial da gramática
@@ -126,8 +126,9 @@ void stateB();
 void stateD();
 char * stateC ();
 char * stateEXP ();
-char * stateEXPS();
-char * stateT();
-char * stateF();
+struct Symbol  stateEXPS();
+struct Symbol stateT();
+struct Symbol stateF();
+
 
 #endif // PARSE_H_INCLUDED

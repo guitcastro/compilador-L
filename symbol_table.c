@@ -16,7 +16,7 @@ struct Symbol * createSymbol (char * name, char * clazz, char * type)
     struct Symbol *s;
     //alocar memória
     s = malloc(sizeof(struct Symbol));
-    s->byte = tableSize();
+    s->adress = 0;
     strcpy (s->name,name);
     if (type != NULL)
         strcpy (s->type,type);
@@ -101,11 +101,11 @@ struct Symbol * findToken (const char * name)
 void printSymbol (struct Symbol *s)
 {
     if (s->type == NULL)
-        printf("endereco: %d \t nome: %s \n", s->byte, s->name);
+        printf("end: %d \t nome: %s \n", s->adress, s->name);
     else if (s->clazz == NULL)
-        printf("endereco: %d \t nome: %s \t tipo: %s \n", s->byte, s->name,s->type);
+        printf("end: %d \t nome: %s \t tipo: %s \n", s->adress, s->name,s->type);
     else
-        printf("endereco: %d \t nome: %s \t tipo: %s \t classe: %s \n", s->byte, s->name,s->type,s->clazz);
+        printf("end: %d \t nome: %s \t tipo: %s \t classe: %s \n", s->adress, s->name,s->type,s->clazz);
 }
 
 /**
@@ -124,8 +124,8 @@ void printTable ()
  */
 int compareToken (struct Symbol *s1,char * tokenName)
 {
-    if (error != 0)
-        return -1;
+    if (error != 0 || s1 == NULL)
+        return 0;
     return ( strcmp (s1->name,tokenName) == 0 );
 }
 
@@ -134,8 +134,8 @@ int compareToken (struct Symbol *s1,char * tokenName)
  */
 int compareTokenType (struct Symbol *s1,char * tokenType)
 {
-    if (error != 0)
-        return -1;
+    if (error != 0 || s1 == NULL)
+        return 0;
     return (strcmp(s1->type,tokenType) == 0);
 }
 
@@ -144,7 +144,7 @@ int compareTokenType (struct Symbol *s1,char * tokenType)
  */
 int compareTokenClass (struct Symbol *s1,char * tokenClazz)
 {
-    if (error != 0)
-        return -1;
+    if (error != 0 || s1 == NULL)
+        return 0;
     return (strcmp(s1->clazz,tokenClazz) == 0);
 }
