@@ -33,7 +33,7 @@ int initLexicalAnalyzer (const char * file_name);
 /**
  * Estado inicial do Automato
  */
-struct Symbol * initialState();
+ Symbol * initialState();
 
 /**
 * Lê o próximo caracterer da linguagem
@@ -43,12 +43,12 @@ char readNextChar ();
 /**
  * Lê uma string
  */
-struct Symbol * readString ();
+ Symbol * readString ();
 
 /**
  * Lê uma identificador, ou palavra reservada
  */
-struct Symbol * readIdentifiers();
+ Symbol * readIdentifiers();
 
 /**
  * Lê um comentário
@@ -63,17 +63,17 @@ int readBracesComment ();
 /**
  * Lê um número inteiro
  */
-struct Symbol * readInteger ();
+ Symbol * readInteger ();
 
 /**
  * Lê um digito hexadecimal ou decimal
  */
-struct Symbol * readDecOrHexa ();
+ Symbol * readDecOrHexa ();
 
 /**
  * Lê um digito no formato hexadecimal
  */
-struct Symbol * readHexa ();
+ Symbol * readHexa ();
 
 void saveLexical(char * type);
 

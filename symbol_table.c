@@ -3,7 +3,7 @@
 /**
  * adiciona um simbolo a tabela
  */
-void addSymbol (struct Symbol * s)
+void addSymbol ( Symbol * s)
 {
     HASH_ADD_STR(symbolTable, name,s);
 }
@@ -11,11 +11,11 @@ void addSymbol (struct Symbol * s)
 /**
  * Cria uma token com o nome e o tipo especificados
  */
-struct Symbol * createSymbol (char * name, char * clazz, char * type)
+ Symbol * createSymbol (char * name, char * clazz, char * type)
 {
-    struct Symbol *s;
+     Symbol *s;
     //alocar memória
-    s = malloc(sizeof(struct Symbol));
+    s = malloc(sizeof( Symbol));
     s->adress = 0;
     strcpy (s->name,name);
     if (type != NULL)
@@ -88,9 +88,9 @@ unsigned int tableSize()
 /**
  * retorna o simbolo encontrado de acordo com o nome especificado, ou null quando não encontrado
  */
-struct Symbol * findToken (const char * name)
+ Symbol * findToken (const char * name)
 {
-    struct Symbol *s;
+     Symbol *s;
     HASH_FIND_STR (symbolTable, name, s );
     return s;
 }
@@ -98,7 +98,7 @@ struct Symbol * findToken (const char * name)
 /**
  * Imprimi uma token
  */
-void printSymbol (struct Symbol *s)
+void printSymbol ( Symbol *s)
 {
     if (s->type == NULL)
         printf("end: %d \t nome: %s \n", s->adress, s->name);
@@ -114,7 +114,7 @@ void printSymbol (struct Symbol *s)
 void printTable ()
 {
     printf("\n");
-    struct Symbol *s;
+     Symbol *s;
     for(s=symbolTable; s != NULL; s=s->hh.next)
         printSymbol(s);
 }
@@ -122,7 +122,7 @@ void printTable ()
 /**
  * Compara se duas token são iguais
  */
-int compareToken (struct Symbol *s1,char * tokenName)
+int compareToken ( Symbol *s1,char * tokenName)
 {
     if (error != 0 || s1 == NULL)
         return 0;
@@ -132,7 +132,7 @@ int compareToken (struct Symbol *s1,char * tokenName)
 /**
  * Compara se duas token tem o mesmo tipo
  */
-int compareTokenType (struct Symbol *s1,char * tokenType)
+int compareTokenType ( Symbol *s1,char * tokenType)
 {
     if (error != 0 || s1 == NULL)
         return 0;
@@ -142,7 +142,7 @@ int compareTokenType (struct Symbol *s1,char * tokenType)
 /**
  * Compara se duas token tem a mesma classe
  */
-int compareTokenClass (struct Symbol *s1,char * tokenClazz)
+int compareTokenClass ( Symbol *s1,char * tokenClazz)
 {
     if (error != 0 || s1 == NULL)
         return 0;

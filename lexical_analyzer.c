@@ -60,10 +60,10 @@ char readNextChar ()
 /**
  * Estado inicial do automato
  */
-struct Symbol * initialState()
+ Symbol * initialState()
 {
     memset (buffer,0,256);
-    struct Symbol *token = NULL;
+     Symbol *token = NULL;
     char character = readNextChar();
     //caso começar com aspas, ler uma string
     if (character == '"')
@@ -134,10 +134,10 @@ struct Symbol * initialState()
 /**
  * Lê uma identificador, ou palavra reservada
  */
-struct Symbol * readIdentifiers ()
+ Symbol * readIdentifiers ()
 {
     char c = readNextChar();
-    struct Symbol *s;
+     Symbol *s;
     while (c == '_' || isAlphabetical(c) || isNumeric(c))
         c = readNextChar();
     if (c == '\0')
@@ -169,7 +169,7 @@ int readBracesComment()
 /**
  * Lê um digito hexadecimal ou decimal
  */
-struct Symbol * readDecOrHexa ()
+ Symbol * readDecOrHexa ()
 {
     char c;
     c = readNextChar();
@@ -184,7 +184,7 @@ struct Symbol * readDecOrHexa ()
 /**
  * Lê um número inteiro
  */
-struct Symbol * readInteger ()
+ Symbol * readInteger ()
 {
     char c;
     do
@@ -201,7 +201,7 @@ struct Symbol * readInteger ()
 /**
  * Lê um digito no formato hexadecimal
  */
-struct Symbol * readHexa ()
+ Symbol * readHexa ()
 {
     memset (buffer,0,256);
     char c;
@@ -247,7 +247,7 @@ int readComment()
 /**
 * Ler uma constante string do código fonte
 */
-struct Symbol * readString ()
+ Symbol * readString ()
 {
     //remover aspa inicial da string:
     buffer[0] = '\0';

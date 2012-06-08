@@ -20,17 +20,31 @@ cseg SEGMENT PUBLIC 			; inicio do seg. código
 dseg SEGMENT PUBLIC			; inicio seg. dados
     byte "Digite seu nome: $"             ;const do tipo string no endereco: 20259
 dseg ENDS				; fim seg. dados
+    mov 	dx, ds:[20259] 
+    mov ah, 09h
+    int	21h
 
-    mov al, FFh             ;atribuicao
+    mov al, 0ffh             ;atribuicao
     mov DS:[0], al
 
     mov al, 0             ;atribuicao
     mov DS:[1], al
 
-
-dseg SEGMENT PUBLIC			; inicio seg. dados
-    byte "Ola' $"             ;const do tipo string no endereco: 20277
-dseg ENDS				; fim seg. dados
-
     mov al, 1             ;atribuicao
     mov DS:[2], al
+
+    ;operações simples
+
+    ;convertento para inteiro
+    mov ax, DS:[2]
+    mov bx, ax    ;move ax para bx
+
+    ;convertento para inteiro
+    mov al, DS:[20000]
+    cbw    ;convertento para byte
+    add ax , bx    ;soma    mov ax, DS[3]
+    mov ah, 4Ch			; termina o programa
+    int 21h	            ; fim seg. código
+cseg ENDS				;
+
+END strt					

@@ -4,12 +4,9 @@
 
 #include "lexical_analyzer.h"
 
-#define isIntegerOrByte(c) (strcmp(c,"integer") == 0 || strcmp (c,"byte") == 0)
-#define hasByte(a,b) ( (strcmp(a,"byte") == 0 || strcmp (b,"byte") == 0) && !(strcmp(a,"byte") == 0 && strcmp (b,"byte") == 0) )
-
 extern int error;
 
-struct Symbol * currentToken;
+Symbol * currentToken;
 
 /**
  * Inicializa o analizador sintático
@@ -56,12 +53,12 @@ int readIdentifier (int stateExpected);
 /**
  * Imprimir error quando o identificador não foi declarado
  */
-void printUndeclaredIdentifier (const struct Symbol * id);
+void printUndeclaredIdentifier (const  Symbol * id);
 
 /**
  * Imprimir error quando o identificador já foi declarado
  */
-void printIdentifierAlreadyDeclared (const struct Symbol * id);
+void printIdentifierAlreadyDeclared (const  Symbol * id);
 
 /**
  * verifica os tipos de uma expressão boolean (em que os dois operandos são boolean)
@@ -116,7 +113,7 @@ char * setIntegerOrByte (char * typeX,char * typeY);
 /**
  * Lê uma constante
  */
-struct Symbol * readConst ();
+ Symbol * readConst ();
 
 /**
  * Estado inicial da gramática
@@ -125,10 +122,9 @@ void stateS();
 void stateB();
 void stateD();
 char * stateC ();
-char * stateEXP ();
-struct Symbol  stateEXPS();
-struct Symbol stateT();
-struct Symbol stateF();
-
+Symbol stateEXP ();
+Symbol  stateEXPS();
+Symbol stateT();
+Symbol stateF();
 
 #endif // PARSE_H_INCLUDED
