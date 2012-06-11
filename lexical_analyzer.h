@@ -6,7 +6,7 @@
 //macros relacionados ao códigos ascii
 #define isNumeric(c) (c > 47 && c < 58)
 #define isAlphabetical(c) ((c > 64 && c < 91) || (c > 96 && c < 123))
-#define isDelimiter(c) (c == '\n' || c == 32)
+#define isDelimiter(c) (c == '\n' || c == 32 || c == '\t')
 //checa se uma string é uma palavra reservada da linguagem
 #define isReservedWord(str) (strcmp(str,"final") == 0 || strcmp(str,"final") == 0 || strcmp(str,"int") == 0 || strcmp(str,"byte") == 0 || strcmp(str,"string") == 0 || strcmp(str,"while") == 0 || strcmp(str,"if") == 0 || strcmp(str,"else") == 0 || strcmp(str,"and") == 0 || strcmp(str,"or") == 0 || strcmp(str,"not") == 0 || strcmp(str,"begin") == 0 || strcmp(str,"end") == 0 || strcmp(str,"readln") == 0 || strcmp(str,"write") == 0 || strcmp(str,"writeln") == 0 || strcmp(str,"TRUE") == 0 || strcmp(str,"FALSE") == 0 || strcmp(str,"boolean") == 0 )
 

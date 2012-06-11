@@ -21,104 +21,74 @@ dseg SEGMENT PUBLIC			; inicio seg. dados
     byte "Digite seu nome: $"             ;const do tipo string no endereco: 20260
 dseg ENDS				; fim seg. dados
     mov di, 20260 
-    R0: 
+    R1: 
         mov	dl, ds:[di]
         add	di, 1
         cmp dl, 024h
-        je R1
+        je R2
         mov ah, 02h
         int	21h
-        jmp R0
-    R1: 
+        jmp R1
+    R2: 
+  mov dx,offset DS:[0]    ;buffer temporario
+    mov	al, 0FFh      ;tamanho máximo da string de 255 char
+    mov	ds:[0], al
+    mov	ah, 0Ah
+    int	21h
+    mov di, offset DS:[2]	;posição do string
+    R3:
+        add di, 1    ;incrementar o contador
+        mov		bl,  ds:[di]		;caractere
+        cmp bl, 0dh;extende o sinal
+       jne	R3      ;continuar até achar o eot end of tape
+   mov al ,24h
+   mov DS:[di],al
+    mov		ah, 02h
+    mov		dl, 0Dh
+    int		21h
+    mov		DL, 0Ah
+    int		21h
 
-    ;convertento para inteiro
-    mov al, DS:[20259]
-    cbw    ;convertento para byte
-    mov cx, 0		;contador
-    mov	bx, 10		;divisor
-    cmp 	ax,0		;verifica sinal
-    jge 	R1			;salta se número positivo
-    mov		bl, 2Dh		;senão, escreve sinal –
-    neg 	ax			;toma módulo do número
-    R1:
- 
-        add		cx, 1		;incrementa contador.
-        mov dx, 0   ;Zero extend unsigned value in AX to DX.
-        div bx		  	;divide AX por 10
-        add dl, 30h		;transforma em char
-        push 	dx			;empilha o char
-    	cmp 	al, 0		;verifica se quoc. é 0
-    	jne	R1			;se não é 0, continua
-    R2:
-    	pop 	dx			;desempilha valor
-    	add 	cx, -1		;decrementa contador
-    	mov ah,	2h ; character output
-    	int 21h ; call ms-dos output character	
-    	cmp 	cx, 0		;verifica pilha vazia
-    	jne	R2			;se não pilha vazia, loop
+    mov al, 0ffh             ;atribuicao
+    mov DS:[259], al
+     mov    al,ds:[259]     ;al = y
+     mov    ds:[20258],al     ;x = al = y
+
+    mov al, 0             ;atribuicao
+    mov DS:[260], al
+     mov    ax,ds:[260]     ;ax = y
+     mov    ds:[20000],ax     ;x = ax = y
+    R4:     ;
+         mov al,ds:[20258]    ;carregar conteúdo da exp
+        cmp al, 0    ;verificar se a expressão é falsa
+        je R5    ;se falsa, pular o comando
 
 
 dseg SEGMENT PUBLIC			; inicio seg. dados
-    byte "Digite seu nome: $"             ;const do tipo string no endereco: 20278
+    byte "Ola' $"             ;const do tipo string no endereco: 20278
 dseg ENDS				; fim seg. dados
     mov di, 20278 
-    R2: 
+    R6: 
         mov	dl, ds:[di]
         add	di, 1
         cmp dl, 024h
-        je R3
+        je R7
         mov ah, 02h
         int	21h
-        jmp R2
-    R3: 
-
-    ;convertento para inteiro
-    mov al, DS:[20259]
-    cbw    ;convertento para byte
-    mov cx, 0		;contador
-    mov	bx, 10		;divisor
-    cmp 	ax,0		;verifica sinal
-    jge 	R1			;salta se número positivo
-    mov		bl, 2Dh		;senão, escreve sinal –
-    neg 	ax			;toma módulo do número
-    R3:
- 
-        add		cx, 1		;incrementa contador.
-        mov dx, 0   ;Zero extend unsigned value in AX to DX.
-        div bx		  	;divide AX por 10
-        add dl, 30h		;transforma em char
-        push 	dx			;empilha o char
-    	cmp 	al, 0		;verifica se quoc. é 0
-    	jne	R3			;se não é 0, continua
-    R4:
-    	pop 	dx			;desempilha valor
-    	add 	cx, -1		;decrementa contador
-    	mov ah,	2h ; character output
-    	int 21h ; call ms-dos output character	
-    	cmp 	cx, 0		;verifica pilha vazia
-    	jne	R4			;se não pilha vazia, loop
-
-    mov al, 0ffh             ;atribuicao
-    mov DS:[0], al
-
-    mov al, 0             ;atribuicao
-    mov DS:[1], al
-
-    mov al, 1             ;atribuicao
-    mov DS:[2], al
-
-    ;operações simples
-
-    ;convertento para inteiro
-    mov al, DS:[2]
-    cbw    ;convertento para byte
-    mov bx, ax    ;move ax para bx
-
-    ;convertento para inteiro
-    mov ax, DS:[20000]
-    add ax , bx    ;soma    mov ax, DS[3]
-    mov ah, 4Ch			; termina o programa
-    int 21h	            ; fim seg. código
-cseg ENDS				;
-
-END strt					
+        jmp R6
+    R7: 
+    mov di, 2 
+    R8: 
+        mov	dl, ds:[di]
+        add	di, 1
+        cmp dl, 024h
+        je R9
+        mov ah, 02h
+        int	21h
+        jmp R8
+    R9: 
+    mov		ah, 02h
+    mov		dl, 0Dh
+    int		21h
+    mov		DL, 0Ah
+    int		21h

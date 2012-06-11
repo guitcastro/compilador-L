@@ -1,0 +1,21 @@
+ 
+Esta  técnica diz  respeito  à observação de pequenas  seqüências de  instruções-alvo  (ditas 
+peepholes) e  trocando-se estas  instruções por uma outra seqüência melhorada, no sentido de ser 
+mais curta ou mais rápida. São exemplos de transformações de programa que são características 
+da otimização peephole: 
+ 
+·  Eliminação  de  instruções  redundantes:  expressões  que  calculam  por  duas  vezes  uma 
+mesma  expressão  e  códigos  inatingíveis  são  exemplos  de  eliminação  de  instruções 
+redundantes. 
+·  Otimizações de fluxo de controle: esporadicamente um gerador de código pode produzir 
+desvios  para  desvios,  desvios  para  desvios  condicionais  ou  ainda  desvios  condicionais 
+para desvios. Estes desvios desnecessários são também alvos da otimização peephole. 
+·  Simplificações algébricas: Exemplos deste  tipo de otimização poderia  ser expressões do 
+tipo x  := x +  0  ou x  := x  *  1,  pois  elas  não  alteram  o  valor  da  variável  à  esquerda  da 
+atribuição.  Ainda  podemos  pensar  na  troca  de  substituições  mais  custosas  por  outras 
+equivalentes mais baratas na máquina-alvo. Um exemplo seria se trocar x := x * 2 por x := 
+x + x. 
+·  Uso  de  dialetos  de  máquina:  Algumas  máquinas,  por  exemplo,  possuem  modos  de 
+endereçamento  auto-incrementantes  e  decrementantes.  O  uso  desses  modos  melhora 
+consideravelmente a qualidade do código gerado. Como Java é independente de máquina, 
+fica apenas apresentado a título de curiosidade este tipo de otimização. 

@@ -24,9 +24,10 @@ void initCodeGen (const char * file_name)
 
 void finishCogGen ()
 {
+    fputs ("\n;termina o programa\n",asm_file);
     fputs ("    mov ah, 4Ch			; termina o programa\n",asm_file);
     fputs ("    int 21h	            ; fim seg. código\n",asm_file);
-    fputs ("cseg ENDS				;\n\n",asm_file);
+    fputs ("cseg ENDS				;\n",asm_file);
     fputs ("END strt					\n",asm_file);
     fclose(asm_file);
 }
@@ -105,7 +106,7 @@ void defIdentifier( Symbol * identifier)
     }
 }
 
-void defTempConst( Symbol * s)
+void defTempConst(Symbol * s)
 {
     fputs ("\n",asm_file);
     s->adress = tempEnd;
@@ -213,11 +214,11 @@ void genNegative (Symbol *x)
 
 void loadIntegerAx(Symbol x)
 {
-    fputs ("\n    ;convertento para inteiro\n",asm_file);
     if (strcmp(x.type,"byte") == 0)
     {
+        fputs ("\n    ;convertento para inteiro\n",asm_file);
+        fputs ("    mov ah, 0;convertento para byte\n",asm_file);//conveter o tipo para byte
         fprintf (asm_file,"    mov al, DS:[%d]\n",x.adress);
-        fputs ("    cbw    ;convertento para byte\n",asm_file);//conveter o tipo para byte
     }
     else
         fprintf (asm_file,"    mov ax, DS:[%d]\n",x.adress);
@@ -250,18 +251,80 @@ unsigned int genOperate (Symbol x, Symbol y, int operation)
     switch (operation)
     {
     case 1:
-        fprintf (asm_file,"    sub %s , %s    ;subtração",regA,regB);
+        fprintf (asm_file,"    sub %s , %s    ;subtração\n",regA,regB);
         break;
     case 2:
-        fprintf (asm_file,"    add %s , %s    ;soma",regA,regB);
+        fprintf (asm_file,"    add %s , %s    ;soma\n",regA,regB);
         break;
     case 3:
-        fprintf (asm_file,"    or %s , %s    ;OR",regA,regB);
+        fprintf (asm_file,"    or %s , %s    ;OR\n",regA,regB);
         break;
     }
-    fprintf (asm_file,"    mov %s, DS[%d]\n",regA,end);
-    tempEnd = (strcmp(regA,"a1") == 0) ? tempEnd+1 : tempEnd+2;
+    fprintf (asm_file,"    mov DS:[%d],%s\n",end,regA);
+    tempEnd = (strcmp(regA,"al") == 0) ? tempEnd+1 : tempEnd+2;
     return end;
+}
+
+void genReadln(Symbol * s){
+    int endBuffer = tempEnd;
+    tempEnd+=259;
+    fprintf (asm_file,"  mov dx,offset DS:[%d]    ;buffer temporario\n",endBuffer);
+    fputs ("    mov	al, 0FFh      ;tamanho máximo da string de 255 char\n",asm_file);
+    fprintf (asm_file,"    mov	ds:[%d], al\n",endBuffer);
+    fputs ("    mov	ah, 0Ah\n",asm_file);
+    fputs ("    int	21h\n",asm_file);
+
+    int rotInicio = ++rotCount;
+    fprintf (asm_file,"    mov di, offset DS:[%d]	;posição do string\n",endBuffer+2);
+    fprintf (asm_file,"    R%d:\n",rotInicio);
+    fputs ("        add di, 1    ;incrementar o contador\n",asm_file);
+    fputs ("        mov		bl,  ds:[di]		;caractere\n",asm_file);
+    fputs ("        cmp bl, 0dh;extende o sinal\n",asm_file);
+    fprintf(asm_file,"       jne	R%d      ;continuar até achar o eot end of tape\n",rotInicio);
+    fputs("   mov al ,24h\n",asm_file);
+    fputs("   mov DS:[di],al\n",asm_file);
+    if (compareTokenType(s,"string"))
+        s->adress = endBuffer+2;
+    else{
+        int rotInicio= ++rotCount;
+        int rotLoop= ++rotCount;
+        int rotFim= ++rotCount;
+        fprintf (asm_file,"  mov di,offset DS:[%d]    ;buffer temporario\n",endBuffer+2);
+        fputs("   mov		ax, 0			;acumulador\n",asm_file);
+        fputs("   mov		cx, 10			;base decimal\n",asm_file);
+        fputs("   mov		dx, 1			;valor sinal +\n",asm_file);
+        fputs("   mov		bh, 0		\n",asm_file);
+        fputs("   mov		bl, ds:[di]		;caractere\n",asm_file);
+        fputs("   cmp		bx, 2Dh			;verifica sinal\n",asm_file);
+        fprintf(asm_file,"   jne		R%d				;se não negativo\n",rotInicio);
+        fputs("   mov		dx, -1			;valor sinal -\n",asm_file);
+        fputs("   add		di, 1			;incrementa base\n",asm_file);
+        fputs("   mov		bl, ds:[di]		;próximo caractere\n",asm_file);
+        fprintf(asm_file,"   R%d:;se não negativo\n",rotInicio);
+        fputs("   push	dx				;empilha sinal\n",asm_file);
+        fputs("   mov		dx, 0			;reg. multiplicação\n",asm_file);
+        fprintf(asm_file,"   R%d:      ;se não negativo\n",rotLoop);
+        fputs("   cmp		bx, 24h			;verifica fim string\n",asm_file);
+        fprintf(asm_file,"   je		R%d				;salta se fim string\n",rotFim);
+        fputs("   imul	cx				;mult. 10\n",asm_file);
+        fputs("   add		bx, -48			;converte caractere\n",asm_file);
+        fputs("   add		ax, bx			;soma valor caractere\n",asm_file);
+        fputs("   add		di, 1			;incrementa base\n",asm_file);
+        fputs("   mov		bh, 0\n",asm_file);
+        fputs("   mov		bl, ds:[di]		;próximo caractere\n",asm_file);
+        fprintf(asm_file,"   jmp		R%d				;loop\n",rotLoop);
+        fprintf(asm_file,"   R%d:    ;loop\n",rotFim);
+        fputs("   pop		cx				;desempilha sinal\n",asm_file);
+        fputs("   imul	cx				;mult. sinal\n",asm_file);
+
+        tempEnd -= 259;//liberar o espaço da string
+        if (compareTokenType(s,"integer"))
+            fprintf(asm_file,"    mov ds:[%d],ax ;atribuição\n", s->adress);
+        else
+            fprintf(asm_file,"    mov ds:[%d],al ;atribuição\n", s->adress);
+
+    }
+    printLn();
 }
 
 void genWriteln (Symbol s)
@@ -269,7 +332,7 @@ void genWriteln (Symbol s)
     if (strcmp(s.type,"string") != 0)
         convertToString(s);
     else{
-        int rotInicio = rotCount;
+        int rotInicio = ++rotCount;
         int rotFim = ++rotCount;
         fprintf (asm_file,"    mov di, %d \n",s.adress);
         fprintf (asm_file,"    R%d: \n",rotInicio);
@@ -287,24 +350,30 @@ void genWriteln (Symbol s)
 void convertToString (Symbol in)
 {
     loadIntegerAx(in);
-    int rotInicio = rotCount;
+    int rotInicio = ++rotCount;
+    int rotPositivo = ++rotCount;
     int rotPrint = ++rotCount;
+    fputs ("    cmp 	ax,0		;verifica sinal\n",asm_file);
+    fprintf (asm_file,"    jge 	R%d			;salta se número positivo\n",rotPositivo);
+    fputs ("    mov		bx, ax		;guardar o valor de ax–\n",asm_file);
+    fputs ("    mov		dl, 2Dh		;senão, escreve sinal –\n",asm_file);
+    fputs ("    mov ah,	2h ; character output\n",asm_file);
+    fputs ("    int 21h ; call ms-dos output character	\n",asm_file);
+    fputs ("    mov ax,bx      ;voltar com o valor\n",asm_file);
+    fputs ("    neg 	ax			;toma módulo do número\n",asm_file);
+    fprintf (asm_file,"    R%d:\n \n",rotPositivo);
     fputs ("    mov cx, 0		;contador\n",asm_file);
     fputs ("    mov	bx, 10		;divisor\n",asm_file);
-    fputs ("    cmp 	ax,0		;verifica sinal\n",asm_file);
-    fputs ("    jge 	R1			;salta se número positivo\n",asm_file);
-    fputs ("    mov		bl, 2Dh		;senão, escreve sinal –\n",asm_file);
-    fputs ("    neg 	ax			;toma módulo do número\n",asm_file);
     fprintf (asm_file,"    R%d:\n \n",rotInicio);
     fputs ("        add		cx, 1		;incrementa contador.\n",asm_file);
     fputs ("        mov dx, 0   ;Zero extend unsigned value in AX to DX.\n",asm_file);
     fputs ("        div bx		  	;divide AX por 10\n",asm_file);
-    fputs ("        add dl, 30h		;transforma em char\n",asm_file);
     fputs ("        push 	dx			;empilha o char\n",asm_file);
     fputs ("    	cmp 	al, 0		;verifica se quoc. é 0\n",asm_file);
     fprintf (asm_file,"    	jne	R%d			;se não é 0, continua\n",rotInicio);
     fprintf (asm_file,"    R%d:\n",rotPrint);
     fputs ("    	pop 	dx			;desempilha valor\n",asm_file);
+    fputs ("        add dl, 30h		;transforma em char\n",asm_file);
     fputs ("    	add 	cx, -1		;decrementa contador\n",asm_file);
     fputs ("    	mov ah,	2h ; character output\n",asm_file);
     fputs ("    	int 21h ; call ms-dos output character	\n",asm_file);
@@ -312,3 +381,97 @@ void convertToString (Symbol in)
     fprintf (asm_file,"    	jne	R%d			;se não pilha vazia, loop\n",rotPrint);
 }
 
+void printLn (){
+    fputs("    mov		ah, 02h\n",asm_file);
+    fputs("    mov		dl, 0Dh\n",asm_file);
+    fputs("    int		21h\n"    ,asm_file);
+    fputs("    mov		DL, 0Ah\n",asm_file);
+    fputs("    int		21h\n"    ,asm_file);
+}
+
+void loadAxBx (Symbol x,Symbol y){
+    loadIntegerAx(y);
+    fputs("mov bx, ax\n",asm_file);
+    loadIntegerAx(x);
+}
+
+int genCompareAxBx(Symbol x,Symbol y,int operation){
+    loadAxBx (x,y);
+    fputs("cmp ax,bx\n ",asm_file);
+    int rotTrue = ++rotCount;
+    int rotEnd = ++rotCount;
+    int resultAdress = tempEnd;
+    tempEnd++;
+        switch (operation){
+        case 0:
+            fprintf(asm_file,"je R%d\n",rotTrue);
+            break;
+        case 1:
+            fprintf(asm_file,"jne R%d\n",rotTrue);
+            break;
+        case 2:
+            fprintf(asm_file,"jl R%d\n",rotTrue);
+            break;
+        case 3:
+            fprintf(asm_file,"jg R%d\n",rotTrue);
+            break;
+        case 4:
+            fprintf(asm_file,"jle R%d\n",rotTrue);
+            break;
+        case 5:
+            fprintf(asm_file,"jge R%d\n",rotTrue);
+            break;
+        }
+        fputs("    mov al, 0 ;como default a comparacao é falsa\n",asm_file);
+        fprintf(asm_file,"jmp R%d;\n",rotEnd);
+        fprintf(asm_file,"R%d:     ;caso a expressao seja verdadeira\n",rotTrue);
+        fputs("        mov al, 0ffh ; exp = true\n",asm_file);
+        fprintf(asm_file,"R%d:\n",rotEnd);
+        fprintf(asm_file,"    mov DS:[%d], al     ;atribuir o resultado da expressao\n",resultAdress);
+        return resultAdress;
+}
+
+int initWhile (Symbol exp){
+    int rotInicio = ++rotCount;
+    int rotFim = ++rotCount;
+    fprintf(asm_file,"    R%d:     ;\n",rotInicio);
+    fprintf(asm_file,"         mov al,ds:[%d]    ;carregar conteúdo da exp\n",exp.adress);
+    fputs("        cmp al, 0    ;verificar se a expressão é falsa\n",asm_file);
+    fprintf(asm_file,"        je R%d    ;se falsa, pular o comando\n",rotFim);
+    return rotInicio;
+}
+
+void finishWhile (int rot){
+    fprintf(asm_file,"     jmp R%d    ;Voltar ao loop\n",rot);
+    fprintf(asm_file,"     R%d:    ;marca o fim do loop\n",rot+1);
+}
+
+void genAssgin(Symbol *x, Symbol y){
+    if (compareTokenType (x,"integer")){
+        fprintf(asm_file,"     mov    ax,ds:[%d]     ;ax = y\n",y.adress);
+        fprintf(asm_file,"     mov    ds:[%d],ax     ;x = ax = y\n",x->adress);
+    }else{
+        fprintf(asm_file,"     mov    al,ds:[%d]     ;al = y\n",y.adress);
+        fprintf(asm_file,"     mov    ds:[%d],al     ;x = al = y\n",x->adress);
+    }
+}
+
+
+int initIf (Symbol exp){
+    int rotFalse = ++rotCount;
+    fprintf(asm_file,"         mov al,ds:[%d]    ;carregar conteúdo da exp\n",exp.adress);
+    fputs("        cmp al, 0ffh    ;verificar se a expressão é falsa\n",asm_file);
+    fprintf(asm_file,"     jne R%d    ;pula o comando\n",rotFalse);
+    return rotFalse;
+}
+
+int endIf (int rotFalse){
+    int rotEnd = ++rotCount;
+    fprintf(asm_file,"     jmp R%d    ;pula o comando\n",rotEnd);
+    fprintf(asm_file,"     R%d:    ;\n",rotFalse);
+    return rotEnd;
+}
+
+void criarRotulo (int rot){
+    fprintf(asm_file,"     R%d:\n",rot);
+}

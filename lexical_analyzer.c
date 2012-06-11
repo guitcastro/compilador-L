@@ -26,8 +26,8 @@ char readNextChar ()
     if (feof(source_code))
         return '\0';
     char character = fgetc (source_code);
-
-
+    if (feof(source_code))
+        return '\0';
     //checa se foi encontradado algum error ao ler o arquivo e caso tenha sido encontrado retornar um caracterer nulo
     if (ferror(source_code))
     {
@@ -41,7 +41,7 @@ char readNextChar ()
     if (character == 13)
         return readNextChar();
     //verificar se o caracter é um caracter válido no alfabeto ou EOF ou Fim de linha
-    if ((character > 31 && character < 126 && character != 35 && character != 36 && character != 37 && character != 38 && character != 64 && character != 94 && character != 96 )|| character == EOF || character == '\n')
+    if ((character > 31 && character < 126 && character != 35 && character != 36 && character != 37 && character != 38 && character != 64 && character != 94 && character != 96 )|| character == EOF || character == '\n' || character == '\t')
     {
         //adicona o caractere ao buffer
         buffer[strlen(buffer)]= character;
@@ -87,7 +87,7 @@ char readNextChar ()
     else if (character == EOF || isDelimiter(character))
         return initialState();
     //operadores com apenas um caractere
-    else if (character == ';'|| character == '+'||character == '-'|| character == ',' || character == '*')
+    else if (character == ';'|| character == '+'||character == '-'|| character == ',' || character == '*' || character == '(' ||  character == ')' )
         token = findToken(buffer);
     //operadores com dois caracteres, sendo o segundo '='
     else if (character == '='|| character == '<'||character == '>')
@@ -140,10 +140,9 @@ char readNextChar ()
      Symbol *s;
     while (c == '_' || isAlphabetical(c) || isNumeric(c))
         c = readNextChar();
-    if (c == '\0')
-        return NULL;
+    if (c != '\0')
+        rewindPointer();
     //remover o caracter lido
-    rewindPointer();
     if (isReservedWord(buffer))
         s = findToken(buffer);
     else
@@ -273,6 +272,7 @@ int readComment()
 void printError (char * error)
 {
     printf("%d:%s",lineNumber,error);
+    exit (EXIT_FAILURE);
 }
 
 void printUndefinedLexical ()

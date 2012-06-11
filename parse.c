@@ -25,12 +25,11 @@ int readToken (char * expectedToken)
     if (error != 0)
         return -1;
     //se a token for a esperada, Ler a próxima token
-    if (strcmp(currentToken->name,expectedToken) == 0)
+    if (currentToken != NULL &&  strcmp(currentToken->name,expectedToken) == 0)
         currentToken = initialState();
     //se a token não for a esperada
     else
     {
-        error = 1;
         printUndefinedToken();
         return -1;
     }
@@ -50,7 +49,7 @@ int readTypedToken (char * expectedType)
     if (error != 0)
         return -1;
     //se a token tiver o tipo esperado, ler a próxima token
-    if (strcmp(currentToken->type,expectedType) == 0)
+    if (currentToken != NULL && strcmp(currentToken->type,expectedType) == 0)
         currentToken = initialState();
     //se a token não tiver o tipo esperado
     else
@@ -74,7 +73,7 @@ int readClazzToken (char * expectedClazz)
     if (error != 0)
         return -1;
     //se a token tiver o a classe esperada, ler a próxima token
-    if (strcmp(currentToken->clazz,expectedClazz) == 0)
+    if (currentToken != NULL && strcmp(currentToken->clazz,expectedClazz) == 0)
         currentToken = initialState();
     //se a token não tiver a classe esperada
     else
@@ -122,6 +121,7 @@ void printIncompatibleType ()
     strcat (stringError,currentToken->name);
     strcat (stringError,"].");
     printError (stringError);
+    exit (EXIT_FAILURE);
 }
 
 /**
@@ -129,6 +129,8 @@ void printIncompatibleType ()
  */
 void printUndefinedToken ()
 {
+    if (currentToken == NULL)
+        printError ("fim de arquivo nao esperado.");
     char stringError [256];
     strcpy (stringError ,"token nao esperado [");
     strcat (stringError,currentToken->name);
@@ -302,7 +304,7 @@ char * stateC ()
     if (compareTokenClass(currentToken,"identifier"))
     {
         //certifica-se que o identificador já foi declarado
-         Symbol * s = findToken(currentToken->name);
+        Symbol * s = findToken(currentToken->name);
         readIdentifier(1);
         readToken("=");
         if (strcmp(s->clazz,"const")==0)
@@ -311,17 +313,18 @@ char * stateC ()
             return NULL;
         }
         exp = stateEXP();
-        if(strcmp(s->type, exp.type) != 0 && strcmp(exp.type,"byte") != 0)
-        {
+        if(strcmp(s->type, exp.type) != 0 && !hasByteAndInteger(s->type,exp.type))
             printError("tipos incompatíveis.");
-            return NULL;
-        }
+
         else if(strcmp(exp.type,"byte") == 0)
         {
             if(!checkIntegerOrByte(s->type))
                 return NULL;
         }
         readToken(";");
+        //atribuição
+        //s->adress = exp.adress;
+        genAssgin(s,exp);
     }
     else if (compareToken(currentToken,"while"))
     {
@@ -331,29 +334,35 @@ char * stateC ()
             printIncompatibleType();
             return NULL;
         }
+        int rot = initWhile (exp);
         if (compareToken(currentToken,"begin"))
             stateB();
         else
             stateC();
+        finishWhile(rot);
     }
     else if (compareToken(currentToken,"if"))
     {
         readToken("if");
         exp = stateEXP();
+        int rotFalse = initIf(exp);
         if(!checkBoolean(exp.type))
             return NULL;
         if (compareToken(currentToken,"begin"))
             stateB();
         else
             stateC();
+        int rotEnd = endIf(rotFalse);
         if (compareToken(currentToken,"else"))
         {
             readToken("else");
+
             if (compareToken(currentToken,"begin"))
                 stateB();
             else
                 stateC();
         }
+        criarRotulo(rotEnd);//o if pulará para esse rotúlo quando for verdadeiro
     }
     else if (compareToken(currentToken,";"))
     {
@@ -363,17 +372,16 @@ char * stateC ()
     {
         readToken("readln");
         readToken(",");
-         Symbol *s  = findToken(currentToken->name);
+        Symbol *s  = findToken(currentToken->name);
         readIdentifier(1);
         if (strcmp (s->type,"boolean") == 0)
-        {
             printError("tipos incompatíveis.");
-            return NULL;
-        }
+        genReadln(s);
         readToken(";");
     }
     else if (compareToken(currentToken,"write") || compareToken(currentToken,"writeln"))
     {
+        int pularLinha = compareToken(currentToken,"writeln") ? 1 : 0;
         if(compareToken(currentToken, "write"))
             readToken("write");
         else if(compareToken(currentToken, "writeln"))
@@ -387,6 +395,8 @@ char * stateC ()
             exp = stateEXP();
             genWriteln(exp);
         }
+        if (pularLinha)
+            printLn();
         readToken(";");
     }
     return NULL;
@@ -394,53 +404,56 @@ char * stateC ()
 
 Symbol stateEXP()
 {
-     Symbol EXPS1 = stateEXPS();
+     Symbol EXPS = stateEXPS();
      Symbol EXPS2;
     if (compareToken(currentToken,"=="))
     {
         readToken("==");
         EXPS2 = stateEXPS();
-        if(strcmp(EXPS1.type, "boolean"))
-        {
-            if (!checkBoolean(EXPS2.type));
-            exit(EXIT_FAILURE);
-        }
-        else if(strcmp(EXPS1.type, "string"))
-        {
-            if(!checkString(EXPS2.type))
-                exit(EXIT_FAILURE);
-        }
-        else if(!checkIntegerOrByte(EXPS2.type))
-            exit(EXIT_FAILURE);
-        return EXPS1;
+        if(strcmp(EXPS.type, "boolean"))
+            checkBoolean(EXPS2.type);
+        else if(strcmp(EXPS.type, "string"))
+            checkString(EXPS2.type);
+        else
+            checkIntegerOrByte(EXPS2.type);
+        strcpy("boolean",EXPS.type);
+        EXPS.adress = genCompareAxBx(EXPS,EXPS2,0);
+        return EXPS;
     }
     else if (compareToken(currentToken,"!=") || compareToken(currentToken,"<") || compareToken(currentToken,">") || compareToken(currentToken,"<=") || compareToken(currentToken,">=") )
     {
-        if (compareToken(currentToken,"!="))
+        int operation;
+        if (compareToken(currentToken,"!=")){
             readToken("!=");
-        else if (compareToken(currentToken,"<"))
+            operation = 1;
+        }
+        else if (compareToken(currentToken,"<")){
             readToken("<");
-        else if (compareToken(currentToken,">"))
+            operation = 2;
+        }
+        else if (compareToken(currentToken,">")){
             readToken(">");
-        else if (compareToken(currentToken,"<="))
+            operation = 3;
+        }
+        else if (compareToken(currentToken,"<=")){
             readToken("<=");
-        else if (compareToken(currentToken,">="))
+            operation = 4;
+        }
+        else if (compareToken(currentToken,">=")){
             readToken(">=");
+            operation = 5;
+        }
         EXPS2 = stateEXPS();
-        if(strcmp(EXPS1.type, "boolean") == 0)
-        {
-            if (!checkBoolean(EXPS2.type));
-                exit(EXIT_FAILURE);
-        }
-        else if(strcmp(EXPS1.type, "string") == 0)
-        {
+        if(strcmp(EXPS.type, "boolean") == 0)
+            checkBoolean(EXPS2.type);
+        else if(strcmp(EXPS.type, "string") == 0)
             printError("tipos incompatíveis.");
-                exit(EXIT_FAILURE);
-        }
-        else if(!checkIntegerOrByte(EXPS2.type))
-                exit(EXIT_FAILURE);
+        else
+            checkIntegerOrByte(EXPS2.type);
+        strcpy (EXPS.type,"boolean");
+        EXPS.adress = genCompareAxBx(EXPS,EXPS2,operation);
     }
-    return EXPS1;
+    return EXPS;
 }
 
 Symbol stateEXPS()
@@ -475,23 +488,14 @@ Symbol stateEXPS()
         }
         else if (compareToken(currentToken,"+"))
         {
-            if (!checkIntegerOrByteOrString(T1.type)){
-                 error = -1;
-                 T1.adress = -1;
-                 return T1;
-            }
+            checkIntegerOrByteOrString(T1.type);
             readToken("+");
             T2 = stateT();
             //se o F for string o F1 também deve ser
             if (strcmp(T1.type,"string") == 0)
             {
-                if (strcmp(T2.type,"string"))
-                {
+                if (strcmp(T2.type,"string") != 0)
                     printError("tipos incompatíveis.");
-                    T1.adress = -1;
-                    error = -1;
-                    return T1;
-                }
             }
             else{
                 strcpy(EXPS.type,setIntegerOrByte(T1.type,T2.type));
@@ -607,9 +611,10 @@ Symbol stateEXPS()
     else if (compareToken(currentToken,"("))
     {
         readToken ("(");
-        //TODO
         F = stateEXP();
         readToken (")");
+    }else{
+        printUndefinedToken();
     }
     return F;
 }
@@ -638,8 +643,7 @@ int checkBoolean (char * type)
     if (strcmp(type,"boolean") != 0)
     {
         printError("tipos incompatíveis.");
-        error = -1;
-        return 0;
+        exit (EXIT_FAILURE);
     }
     return 1;
 }
@@ -657,6 +661,7 @@ int checkString (char * type)
         printError("tipos incompatíveis.");
         error = -1;
         return 0;
+        exit (EXIT_FAILURE);
     }
     return 1;
 }
@@ -691,6 +696,7 @@ int checkIntegerOrByte (char * type)
     {
         printError("tipos incompatíveis.");
         error = -1;
+        exit (EXIT_FAILURE);
         return 0;
     }
     return 1;
@@ -717,3 +723,4 @@ char * setIntegerOrByte (char * typeX,char * typeY)
     else
         return typeX;
 }
+

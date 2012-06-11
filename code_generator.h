@@ -57,4 +57,24 @@ void loadIntegerAx(Symbol x);
 void genWriteln (Symbol s);
 
 void convertToString (Symbol in);
+
+void genReadln(Symbol * s);
+
+int initWhile (Symbol exp);
+
+void finishWhile(int rot);
+
+void printLn();
+
+void loadAxBx (Symbol x,Symbol y);
+
+int genCompareAxBx(Symbol x,Symbol y,int operation);
+
+void genAssgin(Symbol  * x, Symbol y);
+
+int initIf (Symbol exp);
+
+void criarRotulo(int rot);
+
+int endIf (int rotFalse);
 #endif // CODE_GENERATOR_H

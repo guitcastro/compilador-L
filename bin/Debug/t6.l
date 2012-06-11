@@ -2,7 +2,7 @@
 
 int n;
 string nome;
-boolean naoTerminou,outrobool,maisBool;
+boolean naoTerminou;
 final MAXITER=10;
 
 { Bloco Principal }
@@ -17,4 +17,3 @@ begin
     n=n+1;
     naoTerminou=n<MAXITER;
   end
-end
