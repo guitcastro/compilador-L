@@ -52,7 +52,6 @@ char readNextChar ()
     else
     {
         printError ("caractere invalido.");
-        error = 1;
         return '\0';
     }
 }
@@ -219,7 +218,7 @@ int readBracesComment()
     }
     int num;
     sscanf (buffer,"%X",&num);
-    itoa(num,buffer,10);
+    snprintf(buffer,256,"%d",num);
     return createSymbol(buffer,"const","integer");
 }
 
@@ -277,7 +276,6 @@ void printError (char * error)
 
 void printUndefinedLexical ()
 {
-    error = 1;
     char stringError [256];
     strcpy (stringError ,"lexema nao identificado [");
     strcat (stringError,buffer);

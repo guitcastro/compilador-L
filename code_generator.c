@@ -3,14 +3,13 @@
 void initCodeGen (const char * file_name)
 {
     currentEnd = 20000;
-    tempEnd = 0;
+    tempEnd = 1;
     rotCount=0;
     char * file_ext = strrchr(file_name,'.');
     if (file_ext != NULL)
         strcpy(file_ext, ".asm");
     else
         strcat(file_ext, ".asm");
-    file_name = "masm/teste.asm";
     asm_file = fopen(file_name,"w");
     //inicia o segmento de pilha
 
@@ -20,6 +19,7 @@ void initCodeGen (const char * file_name)
     //inicia o segmento de declarações
     openDseg();
     fputs ("    byte 20000 DUP(?)		; temporarios\n",asm_file);
+    closeDseg();
 }
 
 void finishCogGen ()
@@ -44,7 +44,7 @@ void closeDseg ()
 
 void openCseg()
 {
-    fputs ("cseg SEGMENT PUBLIC 			; inicio do seg. código\n",asm_file);
+    fputs ("\ncseg SEGMENT PUBLIC 			; inicio do seg. código\n",asm_file);
     fputs ("    ASSUME CS:cseg, DS:dseg	\n\n",asm_file);
     fputs ("    strt:					; inicio do programa\n",asm_file);
     fputs ("        mov ax, dseg\n",asm_file);
@@ -148,8 +148,7 @@ int genMultiply ( Symbol * x, Symbol * y,int isInterger)
     fputs ("\n    ;multiplicao\n",asm_file);
     if (isInterger)
     {
-        fprintf (asm_file,"    mov ax, DS[%d]\n",x->adress);
-        fprintf (asm_file,"    mov bx, DS[%d]\n",y->adress);
+        loadAxBx(*x,*y);
         fprintf (asm_file,"    imul bx\n");
         fprintf (asm_file,"    mov DS:[%d], ax\n",tempEnd);
         tempEnd+=2;
@@ -157,8 +156,8 @@ int genMultiply ( Symbol * x, Symbol * y,int isInterger)
     }
     else
     {
-        fprintf (asm_file,"    mov al, DS[%d]\n",x->adress);
-        fprintf (asm_file,"    mov bl, DS[%d]\n",y->adress);
+        fprintf (asm_file,"    mov al, DS:[%d]\n",x->adress);
+        fprintf (asm_file,"    mov bl, DS:[%d]\n",y->adress);
         fprintf (asm_file,"    mul bl\n");
         fprintf (asm_file,"    mov DS:[%d], al\n",tempEnd);
         tempEnd+=1;
@@ -170,8 +169,9 @@ int genMultiply ( Symbol * x, Symbol * y,int isInterger)
 int genDivision ( Symbol * x, Symbol * y)
 {
     fputs ("\n    ;divisão\n",asm_file);
-    fprintf (asm_file,"    mov ax, DS[%d]\n",x->adress);
-    fprintf (asm_file,"    mov bx, DS[%d]\n",y->adress);
+    fprintf (asm_file,"    mov ax, DS:[%d]\n",x->adress);
+    fprintf (asm_file,"    mov bx, DS:[%d]\n",y->adress);
+    fprintf (asm_file,"    mov dx, 0\n");
     fprintf (asm_file,"    idiv bx\n");
     fprintf (asm_file,"    mov DS:[%d], ax\n",tempEnd);
     tempEnd+=2;
@@ -181,9 +181,9 @@ int genDivision ( Symbol * x, Symbol * y)
 int genAnd ( Symbol * x, Symbol * y)
 {
     fputs ("\n    ;and\n",asm_file);
-    fprintf (asm_file,"    mov al, DS[%d]\n",x->adress);
-    fprintf (asm_file,"    mov bl, DS[%d]\n",y->adress);
-    fprintf (asm_file,"    and al bl\n");
+    fprintf (asm_file,"    mov al, DS:[%d]\n",x->adress);
+    fprintf (asm_file,"    mov bl, DS:[%d]\n",y->adress);
+    fprintf (asm_file,"    and al, bl\n");
     fprintf (asm_file,"    mov DS:[%d], al\n",tempEnd);
     tempEnd+=1;
     return tempEnd-1;
@@ -192,10 +192,10 @@ int genAnd ( Symbol * x, Symbol * y)
 int genNot ( Symbol * x)
 {
     fputs ("\n    ;not\n",asm_file);
-    fprintf (asm_file,"    mov al, DS[%d]\n              ;negando o %s",x->adress,x->name);
+    fprintf (asm_file,"    mov al, DS:[%d]\n              ;negando o %s",x->adress,x->name);
     fputs ("    not al\n",asm_file);
     x->adress = tempEnd;
-    fprintf (asm_file,"    mov DS[%d],al\n              ; %s",x->adress,x->name);
+    fprintf (asm_file,"    mov DS:[%d],al\n              ; %s",x->adress,x->name);
     tempEnd+=2;
     return x->adress;
 }
@@ -207,7 +207,7 @@ void genNegative (Symbol *x)
     loadIntegerAx(*x);
     fputs ("    neg ax;alterando o sinal\n",asm_file);
     x->adress = tempEnd;
-    fprintf (asm_file,"    mov ax, DS[%d]     ;\n",x->adress);
+    fprintf (asm_file,"    mov DS:[%d],ax      ;\n",x->adress);
     strcpy(x->type,"integer");
     tempEnd+=2;
 }
@@ -218,7 +218,7 @@ void loadIntegerAx(Symbol x)
     {
         fputs ("\n    ;convertento para inteiro\n",asm_file);
         fputs ("    mov ah, 0;convertento para byte\n",asm_file);//conveter o tipo para byte
-        fprintf (asm_file,"    mov al, DS:[%d]\n",x.adress);
+        fprintf (asm_file,"    mov ax, DS:[%d]\n",x.adress);
     }
     else
         fprintf (asm_file,"    mov ax, DS:[%d]\n",x.adress);
@@ -229,24 +229,21 @@ unsigned int genOperate (Symbol x, Symbol y, int operation)
     fputs ("\n    ;operações simples\n",asm_file);
     //se um valor for byte fazer a conversão
     int end = tempEnd;
-    char * regA;
-    char * regB;
+    char regA [] = "ax";
+    char regB [] = "bx";
     if (hasByteAndInteger(x.type,y.type) || hasInteger(x.type,y.type))
     {
         //carrega Y para ax
         loadIntegerAx(y);
         fputs ("    mov bx, ax    ;move ax para bx\n",asm_file);//conveter o tipo para byte
         loadIntegerAx(x);
-        regA= "ax";
-        regB= "bx";
-
     }
     else if (areBytes(x.type,y.type))
     {
-        fprintf (asm_file,"    mov al, DS[%d]\n",x.adress);
-        fprintf (asm_file,"    mov bl, DS[%d]\n",y.adress);
-        regA= "al";
-        regB= "bl";
+        fprintf (asm_file,"    mov al, DS:[%d]\n",x.adress);
+        fprintf (asm_file,"    mov bl, DS:[%d]\n",y.adress);
+        strcpy(regA,"al") ;
+        strcpy(regB,"bl") ;
     }
     switch (operation)
     {
@@ -391,7 +388,7 @@ void printLn (){
 
 void loadAxBx (Symbol x,Symbol y){
     loadIntegerAx(y);
-    fputs("mov bx, ax\n",asm_file);
+    fputs("    mov bx, ax\n",asm_file);
     loadIntegerAx(x);
 }
 
@@ -432,27 +429,45 @@ int genCompareAxBx(Symbol x,Symbol y,int operation){
 }
 
 int initWhile (Symbol exp){
-    int rotInicio = ++rotCount;
+    //int rotInicio = ++rotCount;
     int rotFim = ++rotCount;
-    fprintf(asm_file,"    R%d:     ;\n",rotInicio);
+    //fprintf(asm_file,"    R%d:     ;\n",rotInicio);
     fprintf(asm_file,"         mov al,ds:[%d]    ;carregar conteúdo da exp\n",exp.adress);
     fputs("        cmp al, 0    ;verificar se a expressão é falsa\n",asm_file);
     fprintf(asm_file,"        je R%d    ;se falsa, pular o comando\n",rotFim);
-    return rotInicio;
+    return rotFim;
 }
 
-void finishWhile (int rot){
-    fprintf(asm_file,"     jmp R%d    ;Voltar ao loop\n",rot);
-    fprintf(asm_file,"     R%d:    ;marca o fim do loop\n",rot+1);
+void finishWhile (int rotInicio,int rotFim ){
+    fprintf(asm_file,"     jmp R%d    ;Voltar ao loop\n",rotInicio);
+    fprintf(asm_file,"     R%d:    ;marca o fim do loop\n",rotFim);
 }
 
-void genAssgin(Symbol *x, Symbol y){
+void genAssign(Symbol *x, Symbol y){
+    fputs("\n",asm_file);
+    //se a constante ainda não tiver sido definida
+    if (y.adress == 0)
+            defTempConst(&y);
     if (compareTokenType (x,"integer")){
-        fprintf(asm_file,"     mov    ax,ds:[%d]     ;ax = y\n",y.adress);
+        loadIntegerAx(y);
         fprintf(asm_file,"     mov    ds:[%d],ax     ;x = ax = y\n",x->adress);
-    }else{
+    }else if (compareTokenType (x,"byte") || compareTokenType(x,"boolean") ){
         fprintf(asm_file,"     mov    al,ds:[%d]     ;al = y\n",y.adress);
         fprintf(asm_file,"     mov    ds:[%d],al     ;x = al = y\n",x->adress);
+    }else {
+        fprintf(asm_file,"     mov    di, %d     ;di = indice da string\n",x->adress);
+        fprintf(asm_file,"     mov    si, %d     ;si = indice da string a ser copiada\n",y.adress);
+        int rotInicio  = criarRotulo();
+        int rotFim = ++rotCount;
+        fputs("         mov    al, ds:[si]     ; al = y[iterator]\n",asm_file);
+        fputs("         cmp    al, 024h        ; verifica se é fim de string\n",asm_file);
+        fprintf(asm_file,"         je     R%d             ; se for fim de string finalizar o loop\n",rotFim);
+        fputs("         mov    ds:[di], al     ; x[iterator] = y[iterator]\n",asm_file);
+        fputs("         add di, 1              ; incrementar indice\n",asm_file);
+        fputs("         add si, 1              ; incrementar indice\n",asm_file);
+        fprintf(asm_file,"         jmp    R%d             ; continuar loop\n",rotInicio);
+        fprintf(asm_file,"    R%d:             ; fim da atribuiçao de string\n",rotFim);
+        fputs("         mov    ds:[di], al     ; x[iterator] = y[iterator]\n",asm_file);
     }
 }
 
@@ -472,6 +487,70 @@ int endIf (int rotFalse){
     return rotEnd;
 }
 
-void criarRotulo (int rot){
-    fprintf(asm_file,"     R%d:\n",rot);
+int criarRotulo (){
+    int rot = ++rotCount;
+    fprintf(asm_file,"     R%d:\n",rot );
+    return rot;
+}
+
+void genStringConcat(Symbol * x,Symbol y){
+        fprintf(asm_file,"     mov    di, %d     ;di = indice da string\n",x->adress);
+        int rotInicio  = criarRotulo();
+        int rotFim = ++rotCount;
+        fputs("         mov    al, ds:[di]     ; al = y[iterator]\n",asm_file);
+        fputs("         cmp    al, 024h        ; verifica se é fim de string\n",asm_file);
+        fprintf(asm_file,"         je     R%d             ; se for fim de string finalizar o loop\n",rotFim);
+        fputs("         add di, 1              ; incrementar indice\n",asm_file);
+        fprintf(asm_file,"         jmp    R%d             ; continuar loop\n",rotInicio);
+        fprintf(asm_file,"    R%d:             ; fim da atribuiçao de string\n",rotFim);
+
+
+        fprintf(asm_file,"     mov    si, %d     ;si = indice da string a ser copiada\n",y.adress);
+        int rotInicio2  = criarRotulo();
+        int rotFim2 = ++rotCount;
+        fputs("         mov    al, ds:[si]     ; al = y[iterator]\n",asm_file);
+        fputs("         cmp    al, 024h        ; verifica se é fim de string\n",asm_file);
+        fprintf(asm_file,"         je     R%d             ; se for fim de string finalizar o loop\n",rotFim2);
+        fputs("         mov    ds:[di], al     ; x[iterator] = y[iterator]\n",asm_file);
+        fputs("         add di, 1              ; incrementar indice\n",asm_file);
+        fputs("         add si, 1              ; incrementar indice\n",asm_file);
+        fprintf(asm_file,"         jmp    R%d             ; continuar loop\n",rotInicio2);
+        fprintf(asm_file,"    R%d:             ; fim da atribuiçao de string\n",rotFim2);
+        fputs("         mov    ds:[di], al     ; x[iterator] = y[iterator]\n",asm_file);
+}
+
+int compareString (Symbol  x,Symbol y){
+
+        int rotTrue = ++rotCount;
+        int rotFalse = ++rotCount;
+        int rotFim = ++rotCount;
+        int adress = tempEnd;
+        tempEnd++;
+        fprintf(asm_file,"     mov    di, %d     ;di = indice da string\n",x.adress);
+        fprintf(asm_file,"     mov    si, %d     ;di = indice da string\n",y.adress);
+        int rotInicio  = criarRotulo();
+        fputs("         mov    al, ds:[di]     ; al = y[iterator]\n",asm_file);
+        fputs("         mov    bl, ds:[si]     ; bl = y[iterator]\n",asm_file);
+        fputs("         add di, 1              ; incrementar indice\n",asm_file);
+        fputs("         add si, 1              ; incrementar indice\n",asm_file);
+        fputs("         cmp    al, bl        ; verifica se as string são iguais\n",asm_file);
+        fprintf(asm_file,"         jne     R%d             ; se for fim de string finalizar o loop\n",rotFalse);
+        fputs("         cmp    al, 024h        ; verifica se é fim de string\n",asm_file);
+        fprintf(asm_file,"         je     R%d             ; se for fim de string finalizar o loop\n",rotTrue);
+        fprintf(asm_file,"         jmp     R%d             ; se for fim de string finalizar o loop\n",rotInicio);
+
+
+        fprintf(asm_file,"    R%d:             ; \n",rotTrue);
+        fputs("         mov    al, 0ffh        ; exp = true\n",asm_file);
+        fprintf(asm_file,"    jmp R%d             ; \n",rotFim);
+
+        fprintf(asm_file,"    R%d:             ; \n",rotFalse);
+        fputs("         mov    al, 0        ; exp = false\n",asm_file);
+        fprintf(asm_file,"    jmp R%d             ; \n",rotFim);
+
+        fprintf(asm_file,"    R%d:             ; fim da comparacao de string\n",rotFim);
+
+        fprintf(asm_file,"    mov DS:[%d], al            ; \n",adress);
+
+        return adress;
 }

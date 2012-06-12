@@ -8,8 +8,6 @@
 //third-party libs
 #include "uthash.h"
 
-extern int error;
-
 typedef struct {
    unsigned int adress;//0 - 255
    char type [256];

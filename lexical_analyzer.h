@@ -97,4 +97,5 @@ void rewindPointer ();
  */
 int isValidAndNotEof (char c);
 
+
 #endif // LEXICAL_ANALYZER_H_INCLUDED

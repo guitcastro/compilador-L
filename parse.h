@@ -4,25 +4,24 @@
 
 #include "lexical_analyzer.h"
 
-extern int error;
 
 Symbol * currentToken;
 
 /**
- * Inicializa o analizador sintático
- * @param file_name nome do arquivo com o código fonte
+ * Inicializa o analizador sintÃ¡tico
+ * @param file_name nome do arquivo com o cÃ³digo fonte
  */
 int initParse (const char * file_name);
 
 /**
- * Implementação do casa Token
- * @param expectedToken próxima token esperada a ser lida
+ * ImplementaÃ§Ã£o do casa Token
+ * @param expectedToken prÃ³xima token esperada a ser lida
  * @return sucesso: 0 , falha: -1
  */
 int readToken (char * expected);
 
 /**
- * Implementação do casa Token, esperando por uma token com o tipo especifico
+ * ImplementaÃ§Ã£o do casa Token, esperando por uma token com o tipo especifico
  * Os tipos esperados podem ser "boolean" , "integer" e "string"
  * @param expectedType nome do tipo da token esperada
  * @return sucesso: 0 , falha: -1
@@ -32,36 +31,36 @@ int readTypedToken (char * expectedType);
 
 
 /**
- * Implementação do casa Token, esperando por uma token com a classe específica
+ * ImplementaÃ§Ã£o do casa Token, esperando por uma token com a classe especÃ­fica
  * Os tipos esperados podem ser "identifier" e "const"
  * @param expectedClazz nome da classe da token esperada
  * @return sucesso: 0 , falha: -1
  */int readClazzToken (char * expectedClazz);
 
 /**
- * Imprimir error quando o casa token lê um simbolo inesperado
+ * Imprimir error quando o casa token lÃª um simbolo inesperado
  */
  void printUndefinedToken ();
 
 /**
- * Lê um identificador
- * Se o stateExpected for 0, e o identificador já tiver sido declarado ele imprmir um error
- * caso contrário se o identificador não tiver sido declarado ele imprime um error
+ * LÃª um identificador
+ * Se o stateExpected for 0, e o identificador jÃ¡ tiver sido declarado ele imprmir um error
+ * caso contrÃ¡rio se o identificador nÃ£o tiver sido declarado ele imprime um error
  */
 int readIdentifier (int stateExpected);
 
 /**
- * Imprimir error quando o identificador não foi declarado
+ * Imprimir error quando o identificador nÃ£o foi declarado
  */
 void printUndeclaredIdentifier (const  Symbol * id);
 
 /**
- * Imprimir error quando o identificador já foi declarado
+ * Imprimir error quando o identificador jÃ¡ foi declarado
  */
 void printIdentifierAlreadyDeclared (const  Symbol * id);
 
 /**
- * verifica os tipos de uma expressão boolean (em que os dois operandos são boolean)
+ * verifica os tipos de uma expressÃ£o boolean (em que os dois operandos sÃ£o boolean)
  * ex ( a or b), (a && b)
  * @param typeX tipo a ser verificado
  * @param typeY tipo a ser verificado
@@ -71,7 +70,7 @@ void printIdentifierAlreadyDeclared (const  Symbol * id);
 int checkBooleanExp (char * typeX,char * typeY);
 
 /**
- * verifica se determinado tipo é um boolean
+ * verifica se determinado tipo Ã© um boolean
  * @param type tipo a ser verificado
  * @return 1: sucesso
  *         0: error
@@ -79,49 +78,47 @@ int checkBooleanExp (char * typeX,char * typeY);
 int  checkBoolean (char * type);
 
 /**
- * verifica se determinado tipo é um string
+ * verifica se determinado tipo Ã© um string
  * @param type tipo a ser verificado
- * @return 1: sucesso
- *         0: error
  */
-int checkString (char * type);
+void checkString (char * type);
 
 /**
- * Checa se o tipo é byte ou inteiro ou string
+ * Checa se o tipo Ã© byte ou inteiro ou string
  * @param type tipo a ser verificado
  * @return o tipo se ele for string, byte ou inteiro , NULL caso seja diferente
  */
 char * checkIntegerOrByteOrString (char * type);
 
 /**
- * Checa se o tipo é byte ou inteiro
+ * Checa se o tipo Ã© byte ou inteiro
  * @param type tipo a ser verificado
  * @return 1: sucesso
  *         0: error
  */
-int  checkIntegerOrByte (char * type);
+void checkIntegerOrByte (char * type);
 
 /**
- * Determina qual será o tipo resultado da operação entre bytes em inteiros
+ * Determina qual serÃ¡ o tipo resultado da operaÃ§Ã£o entre bytes em inteiros
  * @param typeX tipo do operando a esquerda
  * @param typeY tipo do operando a direita
- * @return O tipo resultante da operação
+ * @return O tipo resultante da operaÃ§Ã£o
  */
 char * setIntegerOrByte (char * typeX,char * typeY);
 
 
 /**
- * Lê uma constante
+ * LÃª uma constante
  */
  Symbol * readConst ();
 
 /**
- * Estado inicial da gramática
+ * Estado inicial da gramÃ¡tica
  */
 void stateS();
 void stateB();
 void stateD();
-char * stateC ();
+void  stateC ();
 Symbol stateEXP ();
 Symbol  stateEXPS();
 Symbol stateT();

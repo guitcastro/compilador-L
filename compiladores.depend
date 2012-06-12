@@ -2,7 +2,7 @@
 1330121843 source:c:\users\guilherme\dropbox\compiladores\compiladores\symbol_table.c
 	"symbol_table.h"
 
-1338153837 ble.h"
+1339366535 ble.h"
 
 1330121935 c:\users\guilherme\dropbox\compiladores\compiladores\symbol_table.h
 	<stdlib.h>
@@ -10,7 +10,7 @@
 	<string.h>
 	"uthash.h"
 
-1338157913 
+1338157990 
 
 1330121685 c:\users\guilherme\dropbox\compiladores\compiladores\uthash.h
 	<string.h>
@@ -20,11 +20,16 @@
 
 1338142507 h>
 
-1338166252 source:/home/guilherme/Dropbox/compiladores/symbol_table.c
+1339386772 source:/home/guilherme/Dropbox/compiladores/symbol_table.c
+	"symbol_table.h"
 	"symbol_table.h"
 	"symbol_table.h"
 
-1338164382 /home/guilherme/Dropbox/compiladores/symbol_table.h
+1339386747 /home/guilherme/Dropbox/compiladores/symbol_table.h
+	<stdlib.h>
+	<stdio.h>
+	<string.h>
+	"uthash.h"
 	<stdlib.h>
 	<stdio.h>
 	<string.h>
@@ -43,28 +48,38 @@
 	<stddef.h>
 	<stdlib.h>
 	<inttypes.h>
+	<string.h>
+	<stddef.h>
+	<stdlib.h>
+	<inttypes.h>
 
-1338157990 source:/home/guilherme/Dropbox/compiladores/main.c
+1339386358 source:/home/guilherme/Dropbox/compiladores/main.c
 	"parse.h"
 	"parse.h"
+	"parse.h"
 
-1334009888 /home/guilherme/Dropbox/compiladores/lexical_analyzer.h
+1339386293 /home/guilherme/Dropbox/compiladores/lexical_analyzer.h
 	"symbol_table.h"
 	"symbol_table.h"
+	"symbol_table.h"
 
-1338164555 source:/home/guilherme/Dropbox/compiladores/lexical_analyzer.c
+1339386752 source:/home/guilherme/Dropbox/compiladores/lexical_analyzer.c
 	"lexical_analyzer.h"
-	"lexical_analyzer.h"
-
-1338153671 nalyzer.h"
-
-1338163890 /home/guilherme/Dropbox/compiladores/parse.h
 	"lexical_analyzer.h"
 	"lexical_analyzer.h"
 
-1338166324 source:/home/guilherme/Dropbox/compiladores/parse.c
+1339380013 nalyzer.h"
+
+1339387026 /home/guilherme/Dropbox/compiladores/parse.h
+	"lexical_analyzer.h"
+	"lexical_analyzer.h"
+	"lexical_analyzer.h"
+
+1339387113 source:/home/guilherme/Dropbox/compiladores/parse.c
 	"parse.h"
 	"parse.h"
+	"parse.h"
+	"code_generator.h"
 
 1333969696 source:e:\guitcastro-compilador-l-d87b193\main.c
 	"parse.h"
@@ -156,42 +171,52 @@
 1337715472 source:c:\temp\downloads\guitcastro-compilador-l-ffa82e8\lexical_analyzer.c
 	"lexical_analyzer.h"
 
-1338157990 source:c:\users\guilherme\dropbox\compiladores\main.c
+1339465087 source:c:\users\guilherme\dropbox\compiladores\main.c
 	"parse.h"
 
-1339037263 c:\users\guilherme\dropbox\compiladores\parse.h
+1339465029 c:\users\guilherme\dropbox\compiladores\parse.h
 	"lexical_analyzer.h"
 
-1339367833 c:\users\guilherme\dropbox\compiladores\lexical_analyzer.h
+1339386292 c:\users\guilherme\dropbox\compiladores\lexical_analyzer.h
 	"symbol_table.h"
 
-1339030602 c:\users\guilherme\dropbox\compiladores\symbol_table.h
+1339451599 c:\users\guilherme\dropbox\compiladores\symbol_table.h
 	<stdlib.h>
 	<stdio.h>
 	<string.h>
 	"uthash.h"
 
-1338142507 c:\users\guilherme\dropbox\compiladores\uthash.h
+1333969696 c:\users\guilherme\dropbox\compiladores\uthash.h
 	<string.h>
 	<stddef.h>
 	<stdlib.h>
 	<inttypes.h>
 
-1339381228 source:c:\users\guilherme\dropbox\compiladores\parse.c
+1339490981 source:c:\users\guilherme\dropbox\compiladores\parse.c
 	"parse.h"
 	"code_generator.h"
 
-1339380013 source:c:\users\guilherme\dropbox\compiladores\lexical_analyzer.c
+1339366548 rator.h"
+
+1339451853 source:c:\users\guilherme\dropbox\compiladores\lexical_analyzer.c
 	"lexical_analyzer.h"
 
-1339030602 source:c:\users\guilherme\dropbox\compiladores\symbol_table.c
+1339464473 source:c:\users\guilherme\dropbox\compiladores\symbol_table.c
 	"symbol_table.h"
 
-1339366535 c:\users\guilherme\dropbox\compiladores\code_generator.h
+1339471403 c:\users\guilherme\dropbox\compiladores\code_generator.h
 	<stdio.h>
 	<string.h>
 	"symbol_table.h"
 
-1339366548 source:c:\users\guilherme\dropbox\compiladores\code_generator.c
+1339488662 source:c:\users\guilherme\dropbox\compiladores\code_generator.c
+	"code_generator.h"
+
+1339366535 /home/guilherme/Dropbox/compiladores/code_generator.h
+	<stdio.h>
+	<string.h>
+	"symbol_table.h"
+
+1339385407 source:/home/guilherme/Dropbox/compiladores/code_generator.c
 	"code_generator.h"
 

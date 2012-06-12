@@ -90,7 +90,7 @@ unsigned int tableSize()
  */
  Symbol * findToken (const char * name)
 {
-     Symbol *s;
+    Symbol *s;
     HASH_FIND_STR (symbolTable, name, s );
     return s;
 }
@@ -124,7 +124,7 @@ void printTable ()
  */
 int compareToken ( Symbol *s1,char * tokenName)
 {
-    if (error != 0 || s1 == NULL)
+    if (s1 == NULL)
         return 0;
     return ( strcmp (s1->name,tokenName) == 0 );
 }
@@ -134,7 +134,7 @@ int compareToken ( Symbol *s1,char * tokenName)
  */
 int compareTokenType ( Symbol *s1,char * tokenType)
 {
-    if (error != 0 || s1 == NULL)
+    if (s1 == NULL)
         return 0;
     return (strcmp(s1->type,tokenType) == 0);
 }
@@ -144,7 +144,7 @@ int compareTokenType ( Symbol *s1,char * tokenType)
  */
 int compareTokenClass ( Symbol *s1,char * tokenClazz)
 {
-    if (error != 0 || s1 == NULL)
+    if (s1 == NULL)
         return 0;
     return (strcmp(s1->clazz,tokenClazz) == 0);
 }

@@ -11,8 +11,10 @@
 				<Option object_output="obj\Debug\" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="teste.txt" />
+				<Option parameters="teste2.l" />
 				<Compiler>
+					<Add option="-march=i486" />
+					<Add option="-march=i386" />
 					<Add option="-g" />
 				</Compiler>
 			</Target>
