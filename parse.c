@@ -8,7 +8,6 @@
 int initParse (const char * file_name)
 {
     initLexicalAnalyzer(file_name);
-    initCodeGen(file_name);
     currentToken = initialState();
     stateS();
     return 0;
@@ -151,7 +150,6 @@ void printIdentifierAlreadyDeclared (const  Symbol * id)
  */
 void stateS()
 {
-    openCseg();
     while (compareToken(currentToken,"int") || compareToken(currentToken,"boolean") ||  compareToken(currentToken,"byte") || compareToken(currentToken,"string") || compareToken(currentToken,"final"))
     {
         stateD();
@@ -162,7 +160,6 @@ void stateS()
     }
     if (currentToken != NULL)
         printUndefinedLexical();
-    finishCogGen ();
 
 }
 
@@ -189,9 +186,6 @@ void stateD ()
         constant = readConst();
         strcpy (identifier->type,constant->type);
         strcpy (identifier->clazz,"const");
-        openDseg();
-        defConst(identifier,constant);
-        closeDseg();
     }
     else
     {
@@ -219,9 +213,6 @@ void stateD ()
         Symbol * identifier = &*currentToken;
         strcpy(identifier->type,typeExpected);
         readIdentifier(0);
-        openDseg();
-        defIdentifier(identifier);
-        closeDseg();
         if (compareToken(currentToken,","))
         {
             while (compareToken(currentToken,","))
@@ -230,22 +221,16 @@ void stateD ()
                 identifier = &*currentToken;
                 strcpy(identifier->type,typeExpected);
                 readIdentifier(0);
-                openDseg();
-                defIdentifier(identifier);
-                closeDseg();
             }
         }
         else if (compareToken(currentToken,"="))
         {
             readToken("=");
-            openDseg();
             constant = readConst();
-            closeDseg();
             if (strcmp(typeExpected,"integer")==0)
                 checkIntegerOrByte(constant->type);
             else if (strcmp(constant->type,typeExpected) != 0)
                 printIncompatibleType();
-            genAssign(identifier,*constant);
         }
     }
     readToken(";");
@@ -311,35 +296,29 @@ void stateC ()
         else if(strcmp(exp.type,"byte") == 0)
             checkIntegerOrByte(s->type);
         readToken(";");
-        genAssign(s,exp);
     }
     else if (compareToken(currentToken,"while"))
     {
         readToken("while");
-        int rotInicio = criarRotulo();
         exp = stateEXP();
         if(!checkBoolean(exp.type))
             printIncompatibleType();
 
-        int rotFim = initWhile (exp);
         if (compareToken(currentToken,"begin"))
             stateB();
         else
             stateC();
-        finishWhile(rotInicio,rotFim);
     }
     else if (compareToken(currentToken,"if"))
     {
         readToken("if");
         exp = stateEXP();
-        int rotFalse = initIf(exp);
         checkBoolean(exp.type);
 
         if (compareToken(currentToken,"begin"))
             stateB();
         else
             stateC();
-        int rotEnd = endIf(rotFalse);
         if (compareToken(currentToken,"else"))
         {
             readToken("else");
@@ -349,7 +328,6 @@ void stateC ()
             else
                 stateC();
         }
-        fprintf(asm_file,"     R%d:\n",rotEnd);//o if pularÃ¡ para esse rotÃºlo quando for verdadeiro
     }
     else if (compareToken(currentToken,";"))
     {
@@ -363,27 +341,22 @@ void stateC ()
         readIdentifier(1);
         if (strcmp (s->type,"boolean") == 0)
             printError("tipos incompatÃ­veis.");
-        genReadln(s);
         readToken(";");
     }
     else if (compareToken(currentToken,"write") || compareToken(currentToken,"writeln"))
     {
-        int pularLinha = compareToken(currentToken,"writeln") ? 1 : 0;
+        compareToken(currentToken,"writeln");
         if(compareToken(currentToken, "write"))
             readToken("write");
         else if(compareToken(currentToken, "writeln"))
             readToken("writeln");
         readToken(",");
         exp = stateEXP();
-        genWriteln(exp);
         while (compareToken(currentToken,","))
         {
             readToken(",");
             exp = stateEXP();
-            genWriteln(exp);
         }
-        if (pularLinha)
-            printLn();
         readToken(";");
     }
 }
@@ -398,41 +371,32 @@ Symbol stateEXP()
         EXPS2 = stateEXPS();
         if(strcmp(EXPS.type, "boolean") == 0){
             checkBoolean(EXPS2.type);
-            EXPS.adress = genCompareAxBx(EXPS,EXPS2,0);
         }
         else if(strcmp(EXPS.type, "string") == 0){
             checkString(EXPS2.type);
-            EXPS.adress = compareString(EXPS,EXPS2);
         }
         else{
             checkIntegerOrByte(EXPS2.type);
-            EXPS.adress = genCompareAxBx(EXPS,EXPS2,0);
         }
         strcpy(EXPS.type,"boolean");
         return EXPS;
     }
     else if (compareToken(currentToken,"!=") || compareToken(currentToken,"<") || compareToken(currentToken,">") || compareToken(currentToken,"<=") || compareToken(currentToken,">=") )
     {
-        int operation;
         if (compareToken(currentToken,"!=")){
             readToken("!=");
-            operation = 1;
         }
         else if (compareToken(currentToken,"<")){
             readToken("<");
-            operation = 2;
         }
         else if (compareToken(currentToken,">")){
             readToken(">");
-            operation = 3;
         }
         else if (compareToken(currentToken,"<=")){
             readToken("<=");
-            operation = 4;
         }
         else if (compareToken(currentToken,">=")){
             readToken(">=");
-            operation = 5;
         }
         EXPS2 = stateEXPS();
         if(strcmp(EXPS.type, "boolean") == 0)
@@ -442,7 +406,6 @@ Symbol stateEXP()
         else
             checkIntegerOrByte(EXPS2.type);
         strcpy (EXPS.type,"boolean");
-        EXPS.adress = genCompareAxBx(EXPS,EXPS2,operation);
     }
     return EXPS;
 }
@@ -458,7 +421,6 @@ Symbol stateEXPS()
         readToken("-");
         T1 = stateT();
         checkIntegerOrByte(T1.type);
-        genNegative(&T1);
         EXPS = T1;
     }
     else
@@ -472,7 +434,6 @@ Symbol stateEXPS()
             readToken("-");
             T2 = stateT();
             strcpy(EXPS.type,setIntegerOrByte(T1.type,T2.type));
-            EXPS.adress = genOperate (T1,T2,1);
         }
         else if (compareToken(currentToken,"+"))
         {
@@ -484,11 +445,9 @@ Symbol stateEXPS()
             {
                 if (strcmp(T2.type,"string") != 0)
                     printError("tipos incompativeis.");
-                genStringConcat(&T1,T2);
             }
             else{
                 strcpy(EXPS.type,setIntegerOrByte(T1.type,T2.type));
-                EXPS.adress = genOperate (T1,T2,2);
             }
         }
         else if (compareToken(currentToken,"OR"))
@@ -498,8 +457,6 @@ Symbol stateEXPS()
             if (!checkBooleanExp(T1.type,T2.type)){
                 EXPS.adress =-1;
             }
-            else
-                EXPS.adress = genOperate (T1,T2,3);
         }
     }
     return EXPS;
@@ -521,8 +478,6 @@ Symbol stateEXPS()
             T.adress = -1;
             return T;
         }
-        int isInteger = (strcmp(T.type,"integer") == 0) ? 1 : 0;
-        T.adress = genMultiply(&F1,&F2,isInteger);
     }
     else if (compareToken(currentToken,"/"))
     {
@@ -530,7 +485,6 @@ Symbol stateEXPS()
         F2 = stateF();
         setIntegerOrByte(F1.type,F2.type);
         strcpy(T.type,"integer");
-        T.adress = genDivision(&F1,&F2);
     }
     else if (compareToken(currentToken,"AND"))
     {
@@ -542,7 +496,6 @@ Symbol stateEXPS()
             return T;
         }
         else{
-            T.adress = genAnd(&F1,&F2);
             return T;
         }
     }
@@ -565,28 +518,24 @@ Symbol stateEXPS()
         //determinar se a constante nÃºmerica Ã© do tipo byte ou integer
         (num >= 0 && num <= 255) ? strcpy (F.type,"byte") : strcpy (F.type,"integer");
         //definir a constante
-        defTempConst(&F);
     }
     else if (compareTokenType(currentToken,"string"))
     {
         readTypedToken("string");
         strcpy(F.type,"string");
         //definir a constante
-        defTempConst(&F);
     }
     else if (compareToken(currentToken,"TRUE"))
     {
         readToken("TRUE");
         strcpy(F.type,"boolean");
         //definir a constante
-        defTempConst(&F);
     }
     else if (compareToken(currentToken,"FALSE"))
     {
         readToken("FALSE");
         strcpy(F.type,"boolean");
         //definir a constante
-        defTempConst(&F);
     }
     else if (compareToken(currentToken,"NOT"))
     {
@@ -594,8 +543,6 @@ Symbol stateEXPS()
         F = stateF();
         if (!checkBoolean(F.type))
             F.adress = -1;
-        else
-            genNot(&F);
     }
     else if (compareToken(currentToken,"("))
     {
