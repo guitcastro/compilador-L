@@ -39,7 +39,6 @@ void initSymbolTable ()
     addSymbol(createSymbol("boolean","reserverd_word",NULL));
     addSymbol(createSymbol("byte","reserverd_word",NULL));
     addSymbol(createSymbol("int","reserverd_word",NULL));
-    addSymbol(createSymbol("string","reserverd_word",NULL));
     //controladores
     addSymbol(createSymbol("while","reserverd_word",NULL));
     addSymbol(createSymbol("if","reserverd_word",NULL));

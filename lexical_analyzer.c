@@ -41,7 +41,12 @@ char readNextChar ()
     if (character == 13)
         return readNextChar();
     //verificar se o caracter é um caracter válido no alfabeto ou EOF ou Fim de linha
-    if ((character > 31 && character < 126 && character != 35 && character != 36 && character != 37 && character != 38 && character != 64 && character != 94 && character != 96 )|| character == EOF || character == '\n' || character == '\t')
+    if (isAlphabetical(c) || isNumeric(c) || isDelimiter(c)
+        || c == '+' || c == '-' || c == '=' || c == '<' || c == '>'|| c == '+'
+        || c == 242 // >=
+        || c == 243 // <=
+        || c == '*' || c == '/'
+        || character == EOF)
     {
         //adicona o caractere ao buffer
         buffer[strlen(buffer)]= character;
@@ -62,20 +67,11 @@ char readNextChar ()
  Symbol * initialState()
 {
     memset (buffer,0,256);
-     Symbol *token = NULL;
+    Symbol *token = NULL;
     char character = readNextChar();
-    //caso começar com aspas, ler uma string
-    if (character == '"')
-        token = readString ();
     //caso começar com _ , a-z, A-Z ler o identificador (ou palavra reservada)
-    else if (character == '_' || isAlphabetical(character))
+    else if (isAlphabetical(character))
         token = readIdentifiers();
-    //caso seja comentário, ignorar o mesmo
-    else if (character == '{')
-    {
-        readBracesComment();
-        return initialState();
-    }
     //caso seja digito decimal ou hexadecimal
     else if (character == '0')
         token =  readDecOrHexa();
@@ -136,8 +132,8 @@ char readNextChar ()
  Symbol * readIdentifiers ()
 {
     char c = readNextChar();
-     Symbol *s;
-    while (c == '_' || isAlphabetical(c) || isNumeric(c))
+    Symbol *s;
+    while (isAlphabetical(c) || isNumeric(c))
         c = readNextChar();
     if (c != '\0')
         rewindPointer();
@@ -147,21 +143,6 @@ char readNextChar ()
     else
         s = createSymbol(buffer,"identifier", NULL);
     return s;
-}
-
-/**
- * Lê um comentário, no formato { comentário }
- */
-int readBracesComment()
-{
-    char c = readNextChar();
-    while (c != '}')
-    {
-        c = readNextChar();
-        if (!isValidAndNotEof(c))
-            return -1;
-    }
-    return 0;
 }
 
 /**
@@ -240,32 +221,6 @@ int readComment()
 
     }
     return 0;
-}
-
-/**
-* Ler uma constante string do código fonte
-*/
- Symbol * readString ()
-{
-    //remover aspa inicial da string:
-    buffer[0] = '\0';
-    //ler a string até o final
-    char c;
-    do
-    {
-        c = readNextChar();
-        if (!isValidAndNotEof(c))
-            return NULL;
-        if (c == '\n')
-        {
-            printUndefinedLexical();
-            return NULL;
-        }
-    }
-    while (c != '"');
-    //remover a aspa final da string
-    buffer[strlen(buffer)-1]= '\0';
-    return createSymbol(buffer,"const","string");
 }
 
 void printError (char * error)
