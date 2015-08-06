@@ -16,7 +16,6 @@ void addSymbol ( Symbol * s)
      Symbol *s;
     //alocar memória
     s = malloc(sizeof( Symbol));
-    s->adress = 0;
     strcpy (s->name,name);
     if (type != NULL)
         strcpy (s->type,type);
@@ -100,12 +99,7 @@ unsigned int tableSize()
  */
 void printSymbol ( Symbol *s)
 {
-    if (s->type == NULL)
-        printf("end: %d \t nome: %s \n", s->adress, s->name);
-    else if (s->clazz == NULL)
-        printf("end: %d \t nome: %s \t tipo: %s \n", s->adress, s->name,s->type);
-    else
-        printf("end: %d \t nome: %s \t tipo: %s \t classe: %s \n", s->adress, s->name,s->type,s->clazz);
+    printf("nome: %s \t tipo: %s \t classe: %s \n",  s->name,s->type,s->clazz);
 }
 
 /**

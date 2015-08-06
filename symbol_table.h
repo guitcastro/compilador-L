@@ -9,11 +9,10 @@
 #include "uthash.h"
 
 typedef struct {
-   unsigned int adress;//0 - 255
-   char type [256];
-   char clazz [256];
-   char name [256];
-   UT_hash_handle hh;
+    char type [256];
+    char clazz [256];
+    char name [256];
+    UT_hash_handle hh;
 }Symbol;
 
 //a tabela hash

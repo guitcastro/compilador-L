@@ -1,9 +1,8 @@
 #include "parse.h"
-#include "code_generator.h"
 
 /**
- * Inicializa o analizador sintÃ¡tico
- * @param file_name nome do arquivo com o cÃ³digo fonte
+ * Init the sintax analyser 
+ * @param file_name name of the source file
  */
 int initParse (const char * file_name)
 {
@@ -14,16 +13,16 @@ int initParse (const char * file_name)
 }
 
 /**
- * ImplementaÃ§Ã£o do casa Token
- * @param expectedToken prÃ³xima token esperada
- * @return sucesso: 0 , falha: -1
+ * Get the next Token
+ * @param expectedToken the expected token
+ * @return  0 if success and -1 if fail
  */
 int readToken (char * expectedToken)
 {
-    //se a token for a esperada, Ler a prÃ³xima token
+    // case is the expected toke, go ahead
     if (currentToken != NULL &&  strcmp(currentToken->name,expectedToken) == 0)
         currentToken = initialState();
-    //se a token nÃ£o for a esperada
+    // otherwise
     else
     {
         printUndefinedToken();
@@ -76,38 +75,6 @@ int readClazzToken (char * expectedClazz)
 }
 
 /**
- * LÃª um identificador
- * @param stateExpected 0 : espera-se que a token nÃ£o tenha sido declarada previamente
-                        1 : espera-se que a token jÃ¡ tenha sido declarada previamente
- * @return sucesso: 0 , falha: -1
- */
-int readIdentifier (int stateExpected)
-{
-    Symbol * identifier = &*currentToken;
-    readClazzToken ("identifier");
-    //se a token nÃ£o tiver sido declarada
-    if (stateExpected == 0 && findToken(identifier ->name) != NULL)
-        printIdentifierAlreadyDeclared(identifier);
-    //adicionar a token a tabela de simbolos
-    else if (stateExpected == 0)
-        addSymbol(identifier);
-    //caso a token jÃ¡ tenha sido declarada
-    else if(findToken(identifier ->name) == NULL)
-        printUndeclaredIdentifier(identifier );
-    //retornar 0 caso tenha sucesso
-    return 0;
-}
-
-void printIncompatibleType ()
-{
-    char stringError [256];
-    strcpy (stringError ,"classe de identificador incompatÃ­vel [");
-    strcat (stringError,currentToken->name);
-    strcat (stringError,"].");
-    printError (stringError);
-}
-
-/**
  * Imprimir error quando o casa token lÃª um simbolo inesperado
  */
 void printUndefinedToken ()
@@ -117,30 +84,6 @@ void printUndefinedToken ()
     char stringError [256];
     strcpy (stringError ,"token nao esperado [");
     strcat (stringError,currentToken->name);
-    strcat (stringError,"].");
-    printError (stringError);
-}
-
-/**
- * Imprimir error quando o identificador nÃ£o foi declarado
- */
-void printUndeclaredIdentifier (const Symbol * id)
-{
-    char stringError [256];
-    strcpy (stringError ,"identificador nao declarado [");
-    strcat (stringError,id->name);
-    strcat (stringError,"].");
-    printError (stringError);
-}
-
-/**
- * Imprimir error quando o identificador jÃ¡ foi declarado
- */
-void printIdentifierAlreadyDeclared (const  Symbol * id)
-{
-    char stringError [256];
-    strcpy (stringError ,"identificador ja declarado [");
-    strcat (stringError,id->name);
     strcat (stringError,"].");
     printError (stringError);
 }
@@ -181,7 +124,7 @@ void stateD ()
         readToken("final");
          Symbol * identifier = &*currentToken;
         //verifica se o identificador nÃ£o foi declarado
-        readIdentifier(0);
+        readClazzToken("identifier");
         readToken("=");
         constant = readConst();
         strcpy (identifier->type,constant->type);
@@ -212,7 +155,7 @@ void stateD ()
         }
         Symbol * identifier = &*currentToken;
         strcpy(identifier->type,typeExpected);
-        readIdentifier(0);
+        readClazzToken("identifier");
         if (compareToken(currentToken,","))
         {
             while (compareToken(currentToken,","))
@@ -220,17 +163,13 @@ void stateD ()
                 readToken(",");
                 identifier = &*currentToken;
                 strcpy(identifier->type,typeExpected);
-                readIdentifier(0);
+                readClazzToken("identifier");
             }
         }
         else if (compareToken(currentToken,"="))
         {
             readToken("=");
             constant = readConst();
-            if (strcmp(typeExpected,"integer")==0)
-                checkIntegerOrByte(constant->type);
-            else if (strcmp(constant->type,typeExpected) != 0)
-                printIncompatibleType();
         }
     }
     readToken(";");
@@ -281,28 +220,16 @@ void stateC ()
 {
     Symbol exp;
     if (compareTokenClass(currentToken,"identifier"))
-    {
-        //certifica-se que o identificador jÃ¡ foi declarado
-        Symbol * s = findToken(currentToken->name);
-        readIdentifier(1);
+    {     
+        readClazzToken("identifier");
         readToken("=");
-        if (strcmp(s->clazz,"const")==0)
-            printIncompatibleType();
-
         exp = stateEXP();
-        if(strcmp(s->type, exp.type) != 0 && !hasByteAndInteger(s->type,exp.type))
-            printError("tipos incompatÃ­veis.");
-
-        else if(strcmp(exp.type,"byte") == 0)
-            checkIntegerOrByte(s->type);
         readToken(";");
     }
     else if (compareToken(currentToken,"while"))
     {
         readToken("while");
         exp = stateEXP();
-        if(!checkBoolean(exp.type))
-            printIncompatibleType();
 
         if (compareToken(currentToken,"begin"))
             stateB();
@@ -313,8 +240,7 @@ void stateC ()
     {
         readToken("if");
         exp = stateEXP();
-        checkBoolean(exp.type);
-
+        
         if (compareToken(currentToken,"begin"))
             stateB();
         else
@@ -338,9 +264,7 @@ void stateC ()
         readToken("readln");
         readToken(",");
         Symbol *s  = findToken(currentToken->name);
-        readIdentifier(1);
-        if (strcmp (s->type,"boolean") == 0)
-            printError("tipos incompatÃ­veis.");
+        readClazzToken("identifier");
         readToken(";");
     }
     else if (compareToken(currentToken,"write") || compareToken(currentToken,"writeln"))
@@ -369,16 +293,6 @@ Symbol stateEXP()
     {
         readToken("==");
         EXPS2 = stateEXPS();
-        if(strcmp(EXPS.type, "boolean") == 0){
-            checkBoolean(EXPS2.type);
-        }
-        else if(strcmp(EXPS.type, "string") == 0){
-            checkString(EXPS2.type);
-        }
-        else{
-            checkIntegerOrByte(EXPS2.type);
-        }
-        strcpy(EXPS.type,"boolean");
         return EXPS;
     }
     else if (compareToken(currentToken,"!=") || compareToken(currentToken,"<") || compareToken(currentToken,">") || compareToken(currentToken,"<=") || compareToken(currentToken,">=") )
@@ -399,13 +313,6 @@ Symbol stateEXP()
             readToken(">=");
         }
         EXPS2 = stateEXPS();
-        if(strcmp(EXPS.type, "boolean") == 0)
-            checkBoolean(EXPS2.type);
-        else if(strcmp(EXPS.type, "string") == 0)
-            printError("tipos incompatÃ­veis.");
-        else
-            checkIntegerOrByte(EXPS2.type);
-        strcpy (EXPS.type,"boolean");
     }
     return EXPS;
 }
@@ -420,7 +327,6 @@ Symbol stateEXPS()
     {
         readToken("-");
         T1 = stateT();
-        checkIntegerOrByte(T1.type);
         EXPS = T1;
     }
     else
@@ -433,30 +339,16 @@ Symbol stateEXPS()
         {
             readToken("-");
             T2 = stateT();
-            strcpy(EXPS.type,setIntegerOrByte(T1.type,T2.type));
         }
         else if (compareToken(currentToken,"+"))
         {
-            checkIntegerOrByteOrString(T1.type);
             readToken("+");
             T2 = stateT();
-            //se o F for string o F1 também deve ser
-            if (strcmp(T1.type,"string") == 0)
-            {
-                if (strcmp(T2.type,"string") != 0)
-                    printError("tipos incompativeis.");
-            }
-            else{
-                strcpy(EXPS.type,setIntegerOrByte(T1.type,T2.type));
-            }
         }
         else if (compareToken(currentToken,"OR"))
         {
             readToken("OR");
             T2 = stateT();
-            if (!checkBooleanExp(T1.type,T2.type)){
-                EXPS.adress =-1;
-            }
         }
     }
     return EXPS;
@@ -472,32 +364,16 @@ Symbol stateEXPS()
     {
         readToken("*");
         F2 = stateF();
-        if (T.type != NULL)
-            strcpy(T.type,setIntegerOrByte(F1.type,F2.type));
-        else{
-            T.adress = -1;
-            return T;
-        }
     }
     else if (compareToken(currentToken,"/"))
     {
         readToken("/");
         F2 = stateF();
-        setIntegerOrByte(F1.type,F2.type);
-        strcpy(T.type,"integer");
     }
     else if (compareToken(currentToken,"AND"))
     {
         readToken("AND");
         F2 = stateF();
-        if (!checkBooleanExp(F1.type,F2.type))
-        {
-            T.adress = -1;
-            return T;
-        }
-        else{
-            return T;
-        }
     }
     return T;
 }
@@ -508,7 +384,7 @@ Symbol stateEXPS()
     if (compareTokenClass(currentToken,"identifier"))
     {
         //se ler o identificador, apenas retornar o mesmo
-        readIdentifier(1);
+        readClazzToken("identifier");
         F = *findToken(F.name);
     }
     else if (compareTokenType(currentToken,"integer"))
@@ -541,8 +417,6 @@ Symbol stateEXPS()
     {
         readToken ("NOT");
         F = stateF();
-        if (!checkBoolean(F.type))
-            F.adress = -1;
     }
     else if (compareToken(currentToken,"("))
     {
@@ -553,90 +427,5 @@ Symbol stateEXPS()
         printUndefinedToken();
     }
     return F;
-}
-
-/**
- * verifica os tipos de uma expressÃ£o boolean (em que os dois operandos sÃ£o boolean)
- * ex ( a or b), (a && b)
- * @param typeX tipo a ser verificado
- * @param typeY tipo a ser verificado
- * @return 1: sucesso
- *         0: error
- */
-int checkBooleanExp (char * typeX,char * typeY)
-{
-    return (checkBoolean(typeX) && checkBoolean(typeY));
-}
-
-/**
- * verifica se determinado tipo Ã© um boolean
- * @param type tipo a ser verificado
- * @return 1: sucesso
- *         0: error
- */
-int checkBoolean (char * type)
-{
-    if (strcmp(type,"boolean") != 0)
-    {
-        printError("tipos incompatÃ­veis.");
-    }
-    return 1;
-}
-
-/**
- * verifica se determinado tipo Ã© um string
- * @param type tipo a ser verificado
- */
-void checkString (char * type)
-{
-    if (strcmp(type,"string") != 0)
-        printError("tipos incompatÃ­veis.");
-}
-
-/**
- * Checa se o tipo Ã© byte ou inteiro ou string
- * @param type tipo a ser verificado
- * @return o tipo se ele for string, byte ou inteiro , NULL caso seja diferente
- */
-char * checkIntegerOrByteOrString (char * type)
-{
-    if (strcmp (type,"string") == 0)
-        return "string";
-    if (strcmp (type,"byte") == 0)
-        return "byte";
-    if (strcmp (type,"integer") == 0)
-        return "integer";
-    printError("tipos incompatÃ­veis.");
-    return NULL;
-}
-
-/**
- * Checa se o tipo Ã© byte ou inteiro
- * @param type tipo a ser verificado
- */
-void checkIntegerOrByte (char * type)
-{
-    if (!isIntegerOrByte(type))
-        printError("tipos incompatÃ­veis.");
-}
-
-/**
- * Determina qual serÃ¡ o tipo resultado da operaÃ§Ã£o entre bytes em inteiros
- * @param typeX tipo do operando a esquerda
- * @param typeY tipo do operando a direita
- * @return O tipo resultante da operaÃ§Ã£o
- */
-char * setIntegerOrByte (char * typeX,char * typeY)
-{
-    //primeiro verificar se os dois tipos sÃ£o inteiros ou bytes
-    checkIntegerOrByte(typeX);
-    checkIntegerOrByte(typeY);
-    //ou exlcusivo que determina se apenas 1 operador Ã© byte
-    //nesse caso o tipo deve ser tranformado em inteiro
-    if (hasByteAndInteger(typeX,typeY))
-        return "integer";
-    //se nÃ£o os dois tem o mesmo tipo (byte, ou inteiro)
-    else
-        return typeX;
 }
 
