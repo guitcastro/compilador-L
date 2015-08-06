@@ -1,7 +1,7 @@
 #include "parse.h"
 
 /**
- * Init the sintax analyser 
+ * Init the sintax analyser
  * @param file_name name of the source file
  */
 int initParse (const char * file_name)
@@ -218,18 +218,17 @@ void stateD ()
 
 void stateC ()
 {
-    Symbol exp;
     if (compareTokenClass(currentToken,"identifier"))
-    {     
+    {
         readClazzToken("identifier");
         readToken("=");
-        exp = stateEXP();
+        stateEXP();
         readToken(";");
     }
     else if (compareToken(currentToken,"while"))
     {
         readToken("while");
-        exp = stateEXP();
+        stateEXP();
 
         if (compareToken(currentToken,"begin"))
             stateB();
@@ -239,8 +238,8 @@ void stateC ()
     else if (compareToken(currentToken,"if"))
     {
         readToken("if");
-        exp = stateEXP();
-        
+        stateEXP();
+
         if (compareToken(currentToken,"begin"))
             stateB();
         else
@@ -263,7 +262,6 @@ void stateC ()
     {
         readToken("readln");
         readToken(",");
-        Symbol *s  = findToken(currentToken->name);
         readClazzToken("identifier");
         readToken(";");
     }
@@ -275,25 +273,23 @@ void stateC ()
         else if(compareToken(currentToken, "writeln"))
             readToken("writeln");
         readToken(",");
-        exp = stateEXP();
+        stateEXP();
         while (compareToken(currentToken,","))
         {
             readToken(",");
-            exp = stateEXP();
+            stateEXP();
         }
         readToken(";");
     }
 }
 
-Symbol stateEXP()
+void stateEXP()
 {
-     Symbol EXPS = stateEXPS();
-     Symbol EXPS2;
+     stateEXPS();
     if (compareToken(currentToken,"=="))
     {
         readToken("==");
-        EXPS2 = stateEXPS();
-        return EXPS;
+        stateEXPS();
     }
     else if (compareToken(currentToken,"!=") || compareToken(currentToken,"<") || compareToken(currentToken,">") || compareToken(currentToken,"<=") || compareToken(currentToken,">=") )
     {
@@ -312,68 +308,59 @@ Symbol stateEXP()
         else if (compareToken(currentToken,">=")){
             readToken(">=");
         }
-        EXPS2 = stateEXPS();
+        stateEXPS();
     }
-    return EXPS;
 }
 
-Symbol stateEXPS()
+void stateEXPS()
 {
-
-     Symbol T1;
-     Symbol T2;
-     Symbol EXPS;
     if (compareToken(currentToken,"-"))
     {
         readToken("-");
-        T1 = stateT();
-        EXPS = T1;
+        stateT();
     }
     else
     {
-        EXPS = T1 = stateT();
+        stateT();
     }
     while (compareToken(currentToken,"-") || compareToken(currentToken,"+") || compareToken(currentToken,"OR"))
     {
         if (compareToken(currentToken,"-"))
         {
             readToken("-");
-            T2 = stateT();
+            stateT();
         }
         else if (compareToken(currentToken,"+"))
         {
             readToken("+");
-            T2 = stateT();
+            stateT();
         }
         else if (compareToken(currentToken,"OR"))
         {
             readToken("OR");
-            T2 = stateT();
+            stateT();
         }
     }
-    return EXPS;
 }
 
  Symbol stateT ()
 {
-     Symbol F1;
-     Symbol F2;
-     Symbol T = F1 = stateF();
+     Symbol T = stateF();
 
     if (compareToken(currentToken,"*"))
     {
         readToken("*");
-        F2 = stateF();
+        stateF();
     }
     else if (compareToken(currentToken,"/"))
     {
         readToken("/");
-        F2 = stateF();
+        stateF();
     }
     else if (compareToken(currentToken,"AND"))
     {
         readToken("AND");
-        F2 = stateF();
+        stateF();
     }
     return T;
 }
@@ -421,7 +408,7 @@ Symbol stateEXPS()
     else if (compareToken(currentToken,"("))
     {
         readToken ("(");
-        F = stateEXP();
+        stateEXP();
         readToken (")");
     }else{
         printUndefinedToken();

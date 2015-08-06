@@ -41,11 +41,12 @@ char readNextChar ()
     if (character == 13)
         return readNextChar();
     //verificar se o caracter é um caracter válido no alfabeto ou EOF ou Fim de linha
-    if (isAlphabetical(c) || isNumeric(c) || isDelimiter(c)
-        || c == '+' || c == '-' || c == '=' || c == '<' || c == '>'|| c == '+'
-        || c == 242 // >=
-        || c == 243 // <=
-        || c == '*' || c == '/'
+    if (isAlphabetical(character) || isNumeric(character) || isDelimiter(character)
+        || character == '+' || character == '-'
+        || character == '=' || character == '<' || character == '>'
+        || character == ':'
+        || character == ','
+        || character == '*' || character == '/'
         || character == EOF)
     {
         //adicona o caractere ao buffer
@@ -70,55 +71,44 @@ char readNextChar ()
     Symbol *token = NULL;
     char character = readNextChar();
     //caso começar com _ , a-z, A-Z ler o identificador (ou palavra reservada)
-    else if (isAlphabetical(character))
+    if (isAlphabetical(character))
         token = readIdentifiers();
-    //caso seja digito decimal ou hexadecimal
-    else if (character == '0')
-        token =  readDecOrHexa();
     //caso contrário
-    else if (isNumeric(character))
-        token = readInteger();
+    else if (character == '+' || character == '-'){
+        char character = readNextChar();
+        if (!isNumeric(character))
+        {
+            rewindPointer();
+            token = findToken(buffer);
+        }
+        else
+        {
+            token = readNumber();
+        }
+    }
     //se for um delimitar ignorar o mesmo
     else if (character == EOF || isDelimiter(character))
         return initialState();
     //operadores com apenas um caractere
-    else if (character == ';'|| character == '+'||character == '-'|| character == ',' || character == '*' || character == '(' ||  character == ')' )
-        token = findToken(buffer);
-    //operadores com dois caracteres, sendo o segundo '='
-    else if (character == '='|| character == '<'||character == '>')
+    else if (character == ';'|| character == ',' || character == '*' ||
+             character == '(' ||  character == ')' || character == '=' || character == '/')
     {
-        character  = readNextChar();
-        if (character != '=')
-            rewindPointer();
         token = findToken(buffer);
     }
-    //caso único da '!'
-    else if (character == '!')
+    //operadores com dois caracteres
+    else if (character == '<' ||character == '>' ||character == ':')
     {
+        char aux = character;
         character  = readNextChar();
         if (character != '=')
         {
-            printUndefinedLexical();
-            return NULL;
+            if (character == '<' && aux != '>')
+            {
+                rewindPointer();
+            }
         }
+
         token = findToken(buffer);
-    }
-    //caso seja um divisor ou comentário
-    else if (character == '/')
-    {
-        character = readNextChar();
-        //caso seja divisor
-        if (character != '*')
-        {
-            rewindPointer();
-            token = findToken("/");
-        }
-        //caso seja comentário
-        else
-        {
-            readComment();
-            return initialState();
-        }
     }
     //fechar arquivo
     if (token == NULL)
@@ -146,81 +136,34 @@ char readNextChar ()
 }
 
 /**
- * Lê um digito hexadecimal ou decimal
- */
- Symbol * readDecOrHexa ()
-{
-    char c;
-    c = readNextChar();
-    if (!isValidAndNotEof(c))
-        return NULL;
-    if (c == 'x')
-        return readHexa();
-    rewindPointer();
-    return readInteger();
-}
-
-/**
- * Lê um número inteiro
- */
- Symbol * readInteger ()
-{
+ * Read digits and concatenate it to the buffer until find a non digit character
+ * @return the last read character or '\0' in case of error
+*/
+char readDigits(){
     char c;
     do
     {
         c = readNextChar();
         if (!isValidAndNotEof(c))
-            return NULL;
+            return '\0';
     }
     while isNumeric(c);
+    return c;
+}
+
+
+/**
+ * Read a integer number or a real number
+ */
+Symbol * readNumber ()
+{
+    char c = readDigits();
+    if (c == '.')
+    {
+        c = readDigits();
+    }
     rewindPointer();
     return createSymbol(buffer,"const","integer");
-}
-
-/**
- * Lê um digito no formato hexadecimal
- */
- Symbol * readHexa ()
-{
-    memset (buffer,0,256);
-    char c;
-    int i;
-    for (i=0; i<2; i++)
-    {
-        c =  readNextChar();
-        if (!isValidAndNotEof(c))
-            return NULL;
-        //verfica se é numero ou A-F
-        if (!isNumeric(c) && (c > 70 || c < 65))
-        {
-            printUndefinedLexical();
-            return NULL;
-        }
-    }
-    int num;
-    sscanf (buffer,"%X",&num);
-    snprintf(buffer,256,"%d",num);
-    return createSymbol(buffer,"const","integer");
-}
-
-/**
- * Lê um comentário, ou o operador de divisão
- */
-int readComment()
-{
-    char temp = buffer[0];
-    char c = readNextChar();
-    if (!isValidAndNotEof(c))
-        return -1;
-    while (c != '/' || temp != '*')
-    {
-        temp = c;
-        c = readNextChar();
-        if (!isValidAndNotEof(c))
-            return -1;
-
-    }
-    return 0;
 }
 
 void printError (char * error)

@@ -220,39 +220,38 @@
 1339385407 source:/home/guilherme/Dropbox/compiladores/code_generator.c
 	"code_generator.h"
 
-1438713794 source:d:\compilador-l\lexical_analyzer.c
+1438902130 source:d:\compilador-l\lexical_analyzer.c
 	"lexical_analyzer.h"
 
-1438713794 d:\compilador-l\lexical_analyzer.h
+1438902091 d:\compilador-l\lexical_analyzer.h
 	"symbol_table.h"
 
-1438713794 d:\compilador-l\symbol_table.h
+1438881794 d:\compilador-l\symbol_table.h
 	<stdlib.h>
 	<stdio.h>
 	<string.h>
 	"uthash.h"
 
-1438713794 d:\compilador-l\uthash.h
+1438881794 d:\compilador-l\uthash.h
 	<string.h>
 	<stddef.h>
 	<stdlib.h>
 	<inttypes.h>
 
-1438713794 source:d:\compilador-l\main.c
+1438881794 source:d:\compilador-l\main.c
 	"parse.h"
 
-1438713794 d:\compilador-l\parse.h
+1438902363 d:\compilador-l\parse.h
 	"lexical_analyzer.h"
 
-1438713794 source:d:\compilador-l\parse.c
+1438881794 source:d:\compilador-l\parse.c
 	"parse.h"
-	"code_generator.h"
 
 1438713794 d:\compilador-l\code_generator.h
 	<stdio.h>
 	<string.h>
 	"symbol_table.h"
 
-1438713794 source:d:\compilador-l\symbol_table.c
+1438881794 source:d:\compilador-l\symbol_table.c
 	"symbol_table.h"
 

@@ -118,9 +118,9 @@ char * setIntegerOrByte (char * typeX,char * typeY);
 void stateS();
 void stateB();
 void stateD();
-void  stateC ();
-Symbol stateEXP ();
-Symbol  stateEXPS();
+void stateC ();
+void stateEXP ();
+void stateEXPS();
 Symbol stateT();
 Symbol stateF();
 

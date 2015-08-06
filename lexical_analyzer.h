@@ -41,39 +41,11 @@ int initLexicalAnalyzer (const char * file_name);
 char readNextChar ();
 
 /**
- * Lê uma string
- */
- Symbol * readString ();
-
-/**
  * Lê uma identificador, ou palavra reservada
  */
- Symbol * readIdentifiers();
+Symbol * readIdentifiers();
 
-/**
- * Lê um comentário
- */
-int readComment();
-
-/**
- * Lê um comentário no formato {comentário}
- */
-int readBracesComment ();
-
-/**
- * Lê um número inteiro
- */
- Symbol * readInteger ();
-
-/**
- * Lê um digito hexadecimal ou decimal
- */
- Symbol * readDecOrHexa ();
-
-/**
- * Lê um digito no formato hexadecimal
- */
- Symbol * readHexa ();
+Symbol * readNumber ();
 
 void saveLexical(char * type);
 
