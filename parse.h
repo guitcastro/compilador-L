@@ -51,12 +51,9 @@ int readTypedToken (char * expectedType);
  * Estado inicial da gramÃ¡tica
  */
 void stateS();
-void stateB();
 void stateD();
-void stateC ();
 void stateEXP ();
-void stateEXPS();
-Symbol stateT();
-Symbol stateF();
+void stateEXPs();
+void stateInstructions();
 
 #endif // PARSE_H_INCLUDED

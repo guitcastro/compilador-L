@@ -3,4 +3,10 @@ x : inteiro;
 y, n : real;
 z : logico;
 w : caracter;
-a : bool;
+x := +1;
+y := -2.0;
+n := +333.333;
+w := x + z;
+z := x + +1;
+w := +1.0 - (-x + y);
+

@@ -107,9 +107,18 @@ void stateS()
         else
             break;
     }
-    while (compareToken(currentToken,"begin"))
+    /*
+    * Especial case where the identifier is read before
+    */
+    if (compareToken(currentToken,":="))
     {
-        stateB();
+        readToken(":=");
+        stateEXPs();
+        readToken(";");
+    }
+    while (compareTokenClass(currentToken, "identifier"))
+    {
+     stateInstructions();
     }
     if (currentToken != NULL)
         printUndefinedLexical();
@@ -129,255 +138,51 @@ void stateD ()
     }
     readToken(";");
 }
-
-void stateB()
+void stateInstructions(Symbol *first)
 {
-    readToken("begin");
-    while (compareTokenClass(currentToken,"identifier") || compareToken(currentToken,"while") ||  compareToken(currentToken,"if") || compareToken(currentToken,"readln") || compareToken(currentToken,"write")|| compareToken(currentToken,"writeln"))
-    {
-        stateC();
+    if (compareTokenClass(currentToken, "identifier")){
+        readClazzToken("identifier");
+        readToken(":=");
+        stateEXPs();
     }
-    readToken("end");
+    readToken(";");
 }
 
-/**
- * LÃª uma constante
- */
- Symbol * readConst ()
-{
-     Symbol * constant;
-    if (compareToken(currentToken,"-"))
-    {
-        readToken("-");
-        char temp [256] = "-";
-        strcat (temp,currentToken->name);
-        strcpy (currentToken->name,temp);
-    }
-    constant = &* currentToken;
-    if (compareTokenType(currentToken,"integer"))
-    {
-        int num = atoi(currentToken->name);
-        readTypedToken("integer");
-        if (num >= 0 && num <= 255)
-            strcpy (constant->type,"byte");
-        else
-            strcpy (constant->type,"integer");
-    }
-    else if (compareTokenType(currentToken,"string"))
-    {
-        readTypedToken("string");
-        strcpy (constant->type,"string");
-    }
-    else if (compareToken(currentToken,"TRUE"))
-    {
-        readToken("TRUE");
-        strcpy (constant->type,"boolean");
-    }
-    else if (compareToken(currentToken,"FALSE"))
-    {
-        readToken("FALSE");
-        strcpy (constant->type,"boolean");
-    }
-    return constant;
+int isRELOP(){
+    return compareToken(currentToken, "=") || compareToken(currentToken, "<") ||
+           compareToken(currentToken, "<=") || compareToken(currentToken, ">") ||
+           compareToken(currentToken, ">=") || compareToken(currentToken, "<>");
 }
 
-void stateC ()
-{
-    if (compareTokenClass(currentToken,"identifier"))
-    {
-        readClazzToken("identifier");
-        readToken("=");
-        stateEXP();
-        readToken(";");
-    }
-    else if (compareToken(currentToken,"while"))
-    {
-        readToken("while");
-        stateEXP();
+int isADDOP(){
+    return compareToken(currentToken, "+") || compareToken(currentToken, "-") ||
+        compareToken(currentToken, "or");
+}
+int isMULOP  (){
+    return compareToken(currentToken, "*")|| compareToken(currentToken, "/") ||
+           compareToken(currentToken, "div") || compareToken(currentToken, "mod") ||
+           compareToken(currentToken, "and");
+}
 
-        if (compareToken(currentToken,"begin"))
-            stateB();
-        else
-            stateC();
-    }
-    else if (compareToken(currentToken,"if"))
-    {
-        readToken("if");
-        stateEXP();
-
-        if (compareToken(currentToken,"begin"))
-            stateB();
-        else
-            stateC();
-        if (compareToken(currentToken,"else"))
-        {
-            readToken("else");
-
-            if (compareToken(currentToken,"begin"))
-                stateB();
-            else
-                stateC();
-        }
-    }
-    else if (compareToken(currentToken,";"))
-    {
-        readToken(";");
-    }
-    else if (compareToken(currentToken,"readln"))
-    {
-        readToken("readln");
-        readToken(",");
-        readClazzToken("identifier");
-        readToken(";");
-    }
-    else if (compareToken(currentToken,"write") || compareToken(currentToken,"writeln"))
-    {
-        compareToken(currentToken,"writeln");
-        if(compareToken(currentToken, "write"))
-            readToken("write");
-        else if(compareToken(currentToken, "writeln"))
-            readToken("writeln");
-        readToken(",");
-        stateEXP();
-        while (compareToken(currentToken,","))
-        {
-            readToken(",");
-            stateEXP();
-        }
-        readToken(";");
+void stateEXPs(){
+    stateEXP();
+    if (isRELOP() || isADDOP() || isMULOP()){
+        readToken(currentToken->name); // read the operator
+        stateEXPs();
     }
 }
 
 void stateEXP()
 {
-     stateEXPS();
-    if (compareToken(currentToken,"=="))
-    {
-        readToken("==");
-        stateEXPS();
-    }
-    else if (compareToken(currentToken,"!=") || compareToken(currentToken,"<") || compareToken(currentToken,">") || compareToken(currentToken,"<=") || compareToken(currentToken,">=") )
-    {
-        if (compareToken(currentToken,"!=")){
-            readToken("!=");
-        }
-        else if (compareToken(currentToken,"<")){
-            readToken("<");
-        }
-        else if (compareToken(currentToken,">")){
-            readToken(">");
-        }
-        else if (compareToken(currentToken,"<=")){
-            readToken("<=");
-        }
-        else if (compareToken(currentToken,">=")){
-            readToken(">=");
-        }
-        stateEXPS();
-    }
-}
-
-void stateEXPS()
-{
-    if (compareToken(currentToken,"-"))
-    {
-        readToken("-");
-        stateT();
-    }
-    else
-    {
-        stateT();
-    }
-    while (compareToken(currentToken,"-") || compareToken(currentToken,"+") || compareToken(currentToken,"OR"))
-    {
-        if (compareToken(currentToken,"-"))
-        {
-            readToken("-");
-            stateT();
-        }
-        else if (compareToken(currentToken,"+"))
-        {
-            readToken("+");
-            stateT();
-        }
-        else if (compareToken(currentToken,"OR"))
-        {
-            readToken("OR");
-            stateT();
-        }
-    }
-}
-
- Symbol stateT ()
-{
-     Symbol T = stateF();
-
-    if (compareToken(currentToken,"*"))
-    {
-        readToken("*");
-        stateF();
-    }
-    else if (compareToken(currentToken,"/"))
-    {
-        readToken("/");
-        stateF();
-    }
-    else if (compareToken(currentToken,"AND"))
-    {
-        readToken("AND");
-        stateF();
-    }
-    return T;
-}
-
- Symbol stateF()
-{
-     Symbol F = * currentToken;
-    if (compareTokenClass(currentToken,"identifier"))
-    {
-        //se ler o identificador, apenas retornar o mesmo
-        readClazzToken("identifier");
-        F = *findToken(F.name);
-    }
-    else if (compareTokenType(currentToken,"integer"))
-    {
-        int num = atoi(currentToken->name);
+    if (compareTokenType(currentToken, "integer")){
         readTypedToken("integer");
-        //determinar se a constante nÃºmerica Ã© do tipo byte ou integer
-        (num >= 0 && num <= 255) ? strcpy (F.type,"byte") : strcpy (F.type,"integer");
-        //definir a constante
     }
-    else if (compareTokenType(currentToken,"string"))
-    {
-        readTypedToken("string");
-        strcpy(F.type,"string");
-        //definir a constante
+    else if (compareTokenClass(currentToken, "identifier")){
+        readClazzToken("identifier");
     }
-    else if (compareToken(currentToken,"TRUE"))
-    {
-        readToken("TRUE");
-        strcpy(F.type,"boolean");
-        //definir a constante
+    else if (compareToken(currentToken, "(")){
+        readToken("(");
+        stateEXPs();
+        readToken(")");
     }
-    else if (compareToken(currentToken,"FALSE"))
-    {
-        readToken("FALSE");
-        strcpy(F.type,"boolean");
-        //definir a constante
-    }
-    else if (compareToken(currentToken,"NOT"))
-    {
-        readToken ("NOT");
-        F = stateF();
-    }
-    else if (compareToken(currentToken,"("))
-    {
-        readToken ("(");
-        stateEXP();
-        readToken (")");
-    }else{
-        printUndefinedToken();
-    }
-    return F;
 }
-

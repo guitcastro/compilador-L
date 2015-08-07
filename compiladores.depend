@@ -220,10 +220,10 @@
 1339385407 source:/home/guilherme/Dropbox/compiladores/code_generator.c
 	"code_generator.h"
 
-1438902130 source:d:\compilador-l\lexical_analyzer.c
+1438979201 source:d:\compilador-l\lexical_analyzer.c
 	"lexical_analyzer.h"
 
-1438902091 d:\compilador-l\lexical_analyzer.h
+1438958638 d:\compilador-l\lexical_analyzer.h
 	"symbol_table.h"
 
 1438881794 d:\compilador-l\symbol_table.h
@@ -241,10 +241,10 @@
 1438881794 source:d:\compilador-l\main.c
 	"parse.h"
 
-1438902363 d:\compilador-l\parse.h
+1438962063 d:\compilador-l\parse.h
 	"lexical_analyzer.h"
 
-1438881794 source:d:\compilador-l\parse.c
+1438979175 source:d:\compilador-l\parse.c
 	"parse.h"
 
 1438713794 d:\compilador-l\code_generator.h
@@ -252,7 +252,7 @@
 	<string.h>
 	"symbol_table.h"
 
-1438881794 source:d:\compilador-l\symbol_table.c
+1438958638 source:d:\compilador-l\symbol_table.c
 	"symbol_table.h"
 
 1438915013 source:c:\users\guilh\documents\compilador-l\lexical_analyzer.c

@@ -41,11 +41,14 @@ char readNextChar ()
     if (character == 13)
         return readNextChar();
     //verificar se o caracter é um caracter válido no alfabeto ou EOF ou Fim de linha
-    if (isAlphabetical(character) || isNumeric(character) || isDelimiter(character)
+    if (isAlphabetical(character) || isDelimiter(character) || isNumeric(character)
         || character == '+' || character == '-'
         || character == '=' || character == '<' || character == '>'
         || character == ':'
         || character == ';'
+        || character == '('
+        || character == ')'
+        || character == '.'
         || character == ','
         || character == '*' || character == '/'
         || character == EOF)
@@ -58,7 +61,9 @@ char readNextChar ()
     //caso contrário o caracterer não pertence a linguagem
     else
     {
-        printError ("caractere invalido.");
+        char str[80] = "caractere invalido.";
+        strncat(str, &character, 1);
+        printError (str);
         return '\0';
     }
 }
@@ -76,7 +81,7 @@ char readNextChar ()
         token = readIdentifiers();
     //caso contrário
     else if (character == '+' || character == '-'){
-        char character = readNextChar();
+        character = readNextChar();
         if (!isNumeric(character))
         {
             rewindPointer();
@@ -110,6 +115,8 @@ char readNextChar ()
         }
 
         token = findToken(buffer);
+    }else if (character != '\0' && token == NULL){
+        printUndefinedLexical();
     }
     //fechar arquivo
     if (token == NULL)
