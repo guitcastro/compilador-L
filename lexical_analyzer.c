@@ -45,6 +45,7 @@ char readNextChar ()
         || character == '+' || character == '-'
         || character == '=' || character == '<' || character == '>'
         || character == ':'
+        || character == ';'
         || character == ','
         || character == '*' || character == '/'
         || character == EOF)
@@ -102,7 +103,7 @@ char readNextChar ()
         character  = readNextChar();
         if (character != '=')
         {
-            if (character == '<' && aux != '>')
+            if (!(aux == '<' && character == '>'))
             {
                 rewindPointer();
             }
@@ -128,7 +129,7 @@ char readNextChar ()
     if (c != '\0')
         rewindPointer();
     //remover o caracter lido
-    if (isReservedWord(buffer))
+    if (findToken(buffer) != NULL)
         s = findToken(buffer);
     else
         s = createSymbol(buffer,"identifier", NULL);

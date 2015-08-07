@@ -255,3 +255,33 @@
 1438881794 source:d:\compilador-l\symbol_table.c
 	"symbol_table.h"
 
+1438915013 source:c:\users\guilh\documents\compilador-l\lexical_analyzer.c
+	"lexical_analyzer.h"
+
+1438912673 c:\users\guilh\documents\compilador-l\lexical_analyzer.h
+	"symbol_table.h"
+
+1438910448 c:\users\guilh\documents\compilador-l\symbol_table.h
+	<stdlib.h>
+	<stdio.h>
+	<string.h>
+	"uthash.h"
+
+1438910448 c:\users\guilh\documents\compilador-l\uthash.h
+	<string.h>
+	<stddef.h>
+	<stdlib.h>
+	<inttypes.h>
+
+1438910448 source:c:\users\guilh\documents\compilador-l\main.c
+	"parse.h"
+
+1438911696 c:\users\guilh\documents\compilador-l\parse.h
+	"lexical_analyzer.h"
+
+1438916352 source:c:\users\guilh\documents\compilador-l\parse.c
+	"parse.h"
+
+1438915283 source:c:\users\guilh\documents\compilador-l\symbol_table.c
+	"symbol_table.h"
+

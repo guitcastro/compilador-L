@@ -36,40 +36,42 @@ void initSymbolTable ()
     //inicializa o hash
     symbolTable = NULL;
     //tipos primitivos
-    addSymbol(createSymbol("boolean","reserverd_word",NULL));
-    addSymbol(createSymbol("byte","reserverd_word",NULL));
-    addSymbol(createSymbol("int","reserverd_word",NULL));
+    addSymbol(createSymbol("caracter","reserverd_word",NULL));
+    addSymbol(createSymbol("logico","reserverd_word",NULL));
+    addSymbol(createSymbol("real","reserverd_word",NULL));
+    addSymbol(createSymbol("inteiro","reserverd_word",NULL));
     //controladores
-    addSymbol(createSymbol("while","reserverd_word",NULL));
-    addSymbol(createSymbol("if","reserverd_word",NULL));
-    addSymbol(createSymbol("else","reserverd_word",NULL));
-    addSymbol(createSymbol("begin","reserverd_word",NULL));
-    addSymbol(createSymbol("end","reserverd_word",NULL));
+    addSymbol(createSymbol("inicio","reserverd_word",NULL));
+    addSymbol(createSymbol("se","reserverd_word",NULL));
+    addSymbol(createSymbol("senao","reserverd_word",NULL));
+    addSymbol(createSymbol("entao","reserverd_word",NULL));
+    addSymbol(createSymbol("fim","reserverd_word",NULL));
+    addSymbol(createSymbol("enquanto","reserverd_word",NULL));
+    addSymbol(createSymbol("faca","reserverd_word",NULL));
     //operadores
-    addSymbol(createSymbol("AND","reserverd_word",NULL));
-    addSymbol(createSymbol("OR","reserverd_word",NULL));
-    addSymbol(createSymbol("NOT","reserverd_word",NULL));
-    addSymbol(createSymbol("==","reserverd_word",NULL));
-    addSymbol(createSymbol("=","reserverd_word",NULL));
-    addSymbol(createSymbol("<=","reserverd_word",NULL));
-    addSymbol(createSymbol(">=","reserverd_word",NULL));
     addSymbol(createSymbol("+","reserverd_word",NULL));
     addSymbol(createSymbol("-","reserverd_word",NULL));
+    addSymbol(createSymbol("or","reserverd_word",NULL));
     addSymbol(createSymbol("*","reserverd_word",NULL));
-    addSymbol(createSymbol("/","reserverd_word",NULL));
+    addSymbol(createSymbol("div","reserverd_word",NULL));
+    addSymbol(createSymbol("mod","reserverd_word",NULL));
+    addSymbol(createSymbol("and","reserverd_word",NULL));
+    addSymbol(createSymbol("=","reserverd_word",NULL));
     addSymbol(createSymbol("<","reserverd_word",NULL));
+    addSymbol(createSymbol("<=","reserverd_word",NULL));
+    addSymbol(createSymbol("/","reserverd_word",NULL));
     addSymbol(createSymbol(">","reserverd_word",NULL));
-    addSymbol(createSymbol("!=","reserverd_word",NULL));
-    //constantes
-    addSymbol(createSymbol("TRUE","reserverd_word","boolean"));
-    addSymbol(createSymbol("FALSE","reserverd_word","boolean"));
+    addSymbol(createSymbol("<>","reserverd_word",NULL));
+    addSymbol(createSymbol(">=","reserverd_word",NULL));
+    addSymbol(createSymbol(":=","reserverd_word",NULL));
     //funcoes
-    addSymbol(createSymbol("readln","reserverd_word",NULL));
-    addSymbol(createSymbol("write","reserverd_word",NULL));
-    addSymbol(createSymbol("writeln","reserverd_word",NULL));
+    addSymbol(createSymbol("escreva","reserverd_word",NULL));
+    addSymbol(createSymbol("leia","reserverd_word",NULL));
     //outros
-    addSymbol(createSymbol("final","reserverd_word",NULL));
+    addSymbol(createSymbol("inicio","reserverd_word",NULL));
+    addSymbol(createSymbol("fim","reserverd_word",NULL));
     addSymbol(createSymbol(",","reserverd_word",NULL));
+    addSymbol(createSymbol(":","reserverd_word",NULL));
     addSymbol(createSymbol(";","reserverd_word",NULL));
     addSymbol(createSymbol("(","reserverd_word",NULL));
     addSymbol(createSymbol(")","reserverd_word",NULL));

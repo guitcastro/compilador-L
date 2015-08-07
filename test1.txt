@@ -1,0 +1,6 @@
+inicio teste ;
+x : inteiro;
+y, n : real;
+z : logico;
+w : caracter;
+a : bool;

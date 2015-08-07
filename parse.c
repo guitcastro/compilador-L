@@ -93,9 +93,19 @@ void printUndefinedToken ()
  */
 void stateS()
 {
-    while (compareToken(currentToken,"int") || compareToken(currentToken,"boolean") ||  compareToken(currentToken,"byte") || compareToken(currentToken,"string") || compareToken(currentToken,"final"))
+    readToken("inicio");
+    readClazzToken("identifier");
+    readToken(";");
+    while (readClazzToken("identifier") == 0)
     {
-        stateD();
+        if (compareToken(currentToken, ","))
+        {
+            readToken(",");
+        }
+        else if (compareToken(currentToken, ":"))
+            stateD();
+        else
+            break;
     }
     while (compareToken(currentToken,"begin"))
     {
@@ -106,6 +116,20 @@ void stateS()
 
 }
 
+void stateD ()
+{
+    readToken(":");
+    if (compareToken(currentToken, "inteiro") || compareToken(currentToken, "real") ||
+        compareToken(currentToken, "logico") || compareToken(currentToken, "caracter"))
+    {
+        readToken(currentToken->name);
+    }
+    else{
+        printUndefinedToken();
+    }
+    readToken(";");
+}
+
 void stateB()
 {
     readToken("begin");
@@ -114,65 +138,6 @@ void stateB()
         stateC();
     }
     readToken("end");
-}
-
-void stateD ()
-{
-    Symbol * constant;
-    if(compareToken(currentToken,"final"))
-    {
-        readToken("final");
-         Symbol * identifier = &*currentToken;
-        //verifica se o identificador nÃ£o foi declarado
-        readClazzToken("identifier");
-        readToken("=");
-        constant = readConst();
-        strcpy (identifier->type,constant->type);
-        strcpy (identifier->clazz,"const");
-    }
-    else
-    {
-        const char * typeExpected;
-        if (compareToken(currentToken,"int"))
-        {
-            readToken("int");
-            typeExpected = "integer";
-        }
-        else if (compareToken(currentToken,"boolean"))
-        {
-            readToken("boolean");
-            typeExpected = "boolean";
-        }
-        else if(compareToken(currentToken,"byte"))
-        {
-            readToken("byte");
-            typeExpected = "byte";
-        }
-        else if(compareToken(currentToken,"string"))
-        {
-            readToken("string");
-            typeExpected = "string";
-        }
-        Symbol * identifier = &*currentToken;
-        strcpy(identifier->type,typeExpected);
-        readClazzToken("identifier");
-        if (compareToken(currentToken,","))
-        {
-            while (compareToken(currentToken,","))
-            {
-                readToken(",");
-                identifier = &*currentToken;
-                strcpy(identifier->type,typeExpected);
-                readClazzToken("identifier");
-            }
-        }
-        else if (compareToken(currentToken,"="))
-        {
-            readToken("=");
-            constant = readConst();
-        }
-    }
-    readToken(";");
 }
 
 /**
