@@ -3,10 +3,21 @@ x : inteiro;
 y, n : real;
 z : logico;
 w : caracter;
-x := +1;
-y := -2.0;
-n := +333.333;
+leia (x, y);
+leia (w);
+escreva (x);
+escreva (x + ( +1 ));
+se z < -1.0 entao inicio
+    x := +1;
+    y := -2.0;
+fim
+senao  inicio
+    se w > (x + z) + +1 entao inicio
+        n := +333.333;
+    fim
+fim;
 w := x + z;
-z := x + +1;
-w := +1.0 - (-x + y);
-
+enquanto ( x < z) faca inicio
+    w := +1.0 - (-x + y);
+    z := x + +1;
+fim;

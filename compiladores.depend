@@ -255,7 +255,7 @@
 1438958638 source:d:\compilador-l\symbol_table.c
 	"symbol_table.h"
 
-1438915013 source:c:\users\guilh\documents\compilador-l\lexical_analyzer.c
+1439008450 source:c:\users\guilh\documents\compilador-l\lexical_analyzer.c
 	"lexical_analyzer.h"
 
 1438912673 c:\users\guilh\documents\compilador-l\lexical_analyzer.h
@@ -276,10 +276,10 @@
 1438910448 source:c:\users\guilh\documents\compilador-l\main.c
 	"parse.h"
 
-1438911696 c:\users\guilh\documents\compilador-l\parse.h
+1439011116 c:\users\guilh\documents\compilador-l\parse.h
 	"lexical_analyzer.h"
 
-1438916352 source:c:\users\guilh\documents\compilador-l\parse.c
+1439012691 source:c:\users\guilh\documents\compilador-l\parse.c
 	"parse.h"
 
 1438915283 source:c:\users\guilh\documents\compilador-l\symbol_table.c

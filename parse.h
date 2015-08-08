@@ -55,5 +55,5 @@ void stateD();
 void stateEXP ();
 void stateEXPs();
 void stateInstructions();
-
+void stateInstruction();
 #endif // PARSE_H_INCLUDED

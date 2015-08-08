@@ -96,8 +96,9 @@ void stateS()
     readToken("inicio");
     readClazzToken("identifier");
     readToken(";");
-    while (readClazzToken("identifier") == 0)
+    while (compareTokenClass(currentToken, "identifier"))
     {
+        readClazzToken("identifier");
         if (compareToken(currentToken, ","))
         {
             readToken(",");
@@ -116,10 +117,7 @@ void stateS()
         stateEXPs();
         readToken(";");
     }
-    while (compareTokenClass(currentToken, "identifier"))
-    {
-     stateInstructions();
-    }
+    stateInstructions();
     if (currentToken != NULL)
         printUndefinedLexical();
 
@@ -138,14 +136,70 @@ void stateD ()
     }
     readToken(";");
 }
-void stateInstructions(Symbol *first)
+void stateInstructions(){
+    while (compareTokenClass(currentToken, "identifier") ||
+           compareToken(currentToken, "se") ||
+           compareToken(currentToken, "leia") || compareToken(currentToken, "escreva") ||
+           compareToken(currentToken, "enquanto") )
+    {
+        stateInstruction();
+        if (compareToken(currentToken, ";")){
+            readToken(";");
+        }
+        else{
+            break;
+        }
+    }
+}
+void stateInstruction()
 {
     if (compareTokenClass(currentToken, "identifier")){
         readClazzToken("identifier");
         readToken(":=");
         stateEXPs();
     }
-    readToken(";");
+    else if (compareToken(currentToken, "enquanto"))
+    {
+        readToken("enquanto");
+        stateEXPs();
+        readToken("faca");
+        readToken("inicio");
+        stateInstructions();
+        readToken("fim");
+    }
+    else if (compareToken(currentToken, "se"))
+    {
+        readToken("se");
+        stateEXPs();
+        readToken("entao");
+        readToken("inicio");
+        stateInstructions();
+        readToken("fim");
+        if (compareToken(currentToken, "senao")){
+            readToken("senao");
+            readToken("inicio");
+            stateInstructions();
+            readToken("fim");
+        }
+    }else if (compareToken(currentToken, "leia")){
+        readToken("leia");
+        readToken("(");
+        while (compareTokenClass(currentToken, "identifier")){
+            readClazzToken("identifier");
+            if (compareToken(currentToken, ",")){
+                    readToken(",");
+            }else{
+                break;
+            }
+        }
+        readToken(")");
+    }
+    else if (compareToken(currentToken, "escreva")){
+        readToken("escreva");
+        readToken("(");
+        stateEXPs();
+        readToken(")");
+    }
 }
 
 int isRELOP(){
